@@ -1,5 +1,3 @@
-// SPDX-License-Identifier: MIT
-
 pragma solidity 0.7.0;
 
 library SafeMath {
@@ -59,18 +57,23 @@ library SafeMath {
     }
 }
 
+contract TellorPlayground {
 
-contract Token  {
     using SafeMath for uint256;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-
+    event TipAdded(address indexed _sender, uint256 indexed _requestId, uint256 _tip);
+    event NewValue(uint256 _requestId, uint256 _time, uint256 _value);
+    
+    mapping(uint256 => mapping(uint256 => uint256)) public values; //requestId -> timestamp -> value
+    mapping(uint256 => mapping(uint256 => bool)) public isDisputed; //requestId -> timestamp -> value
+    mapping(uint256 => uint256[]) public timestamps;
+    mapping(address => uint) public balances;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
 
     uint256 private _totalSupply;
-
     string private _name;
     string private _symbol;
     uint8 private _decimals;
@@ -79,12 +82,10 @@ contract Token  {
         _name = name;
         _symbol = symbol;
         _decimals = 18;
-        _mint(msg.sender, 1000000000 ether);
     }
     function name() public view returns (string memory) {
         return _name;
     }
-
 
     function symbol() public view returns (string memory) {
         return _symbol;
@@ -102,12 +103,16 @@ contract Token  {
         return _balances[account];
     }
 
+    function faucet(address user) external {
+        _mint(user, 100 ether);
+    }
+
     function transfer(address recipient, uint256 amount) public virtual returns (bool) {
         _transfer(msg.sender, recipient, amount);
         return true;
     }
 
-  
+
     function allowance(address owner, address spender) public view virtual returns (uint256) {
         return _allowances[owner][spender];
     }
@@ -170,5 +175,39 @@ contract Token  {
 
         _allowances[owner][spender] = amount;
         emit Approval(owner, spender, amount);
+    }
+
+    function submitValue(uint256 _requestId,uint256 _value) external {
+        values[_requestId][block.timestamp] = _value;
+        timestamps[_requestId].push(block.timestamp);
+        emit NewValue(_requestId, block.timestamp, _value);
+    }
+
+    function disputeValue(uint256 _requestId, uint256 _timestamp) external {
+        values[_requestId][_timestamp] = 0;
+        isDisputed[_requestId][_timestamp] = true;
+    }
+
+    function retrieveData(uint256 _requestId, uint256 _timestamp) public view returns(uint256){
+        return values[_requestId][_timestamp];
+    }
+
+    function isInDispute(uint256 _requestId, uint256 _timestamp) public view returns(bool){
+        return isDisputed[_requestId][_timestamp];
+    }
+
+    function getNewValueCountbyRequestId(uint256 _requestId) public view returns(uint) {
+        return timestamps[_requestId].length;
+    }
+
+    function getTimestampbyRequestIDandIndex(uint256 _requestId, uint256 index) public view returns(uint256) {
+        uint len = timestamps[_requestId].length;
+        if(len == 0 || len <= index) return 0; 
+        return timestamps[_requestId][index];
+    }
+
+    function addTip(uint256 _requestId, uint256 _amount) external {
+        _transfer(msg.sender, address(this), _amount);
+        emit TipAdded(msg.sender, _requestId, _amount);
     }
 }

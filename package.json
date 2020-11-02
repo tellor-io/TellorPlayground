@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/tellor-io/TellorPlayground/issues"
   },
-  "homepage": "https://github.com/tellor-io/TellorPlayground#readme"
+  "homepage": "https://github.com/tellor-io/TellorPlayground#readme",
+  "devDependencies": {
+    "truffle": "^5.1.51"
+  }
 }

@@ -257,7 +257,7 @@ contract TellorPlayground is Ownable{
     * @param _requestId The tellorId to associate the value to
     * @param _value the value for the requestId
     */
-    function submitValue(uint256 _requestId,uint256 _value) external {
+    function submitValue(uint256 _requestId,uint256 _value) onlyOwner() external {
         values[_requestId][block.timestamp] = _value;
         timestamps[_requestId].push(block.timestamp);
         emit NewValue(_requestId, block.timestamp, _value);
@@ -268,7 +268,7 @@ contract TellorPlayground is Ownable{
     * @param _requestId The tellorId to be disputed
     * @param _timestamp the timestamp that indentifies for the value
     */
-    function disputeValue(uint256 _requestId, uint256 _timestamp) external {
+    function disputeValue(uint256 _requestId, uint256 _timestamp) onlyOwner() external {
         values[_requestId][_timestamp] = 0;
         isDisputed[_requestId][_timestamp] = true;
     }

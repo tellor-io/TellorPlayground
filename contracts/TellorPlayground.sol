@@ -1,5 +1,8 @@
 pragma solidity 0.7.0;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+
+
 library SafeMath {
 
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -57,7 +60,7 @@ library SafeMath {
     }
 }
 
-contract TellorPlayground {
+contract TellorPlayground is Ownable{
 
     using SafeMath for uint256;
 

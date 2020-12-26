@@ -18,5 +18,8 @@
   "homepage": "https://github.com/tellor-io/TellorPlayground#readme",
   "devDependencies": {
     "truffle": "^5.1.51"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^3.3.0"
   }
 }

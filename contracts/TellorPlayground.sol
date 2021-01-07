@@ -1,6 +1,6 @@
 pragma solidity 0.7.0;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 
 library SafeMath {
@@ -60,7 +60,7 @@ library SafeMath {
     }
 }
 
-contract TellorPlayground is Ownable{
+contract TellorPlayground is AccessControl {
 
     using SafeMath for uint256;
 
@@ -85,6 +85,8 @@ contract TellorPlayground is Ownable{
         _name = name;
         _symbol = symbol;
         _decimals = 18;
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setRoleAdmin(DEFAULT_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
     }
 
       /**
@@ -257,7 +259,8 @@ contract TellorPlayground is Ownable{
     * @param _requestId The tellorId to associate the value to
     * @param _value the value for the requestId
     */
-    function submitValue(uint256 _requestId,uint256 _value) onlyOwner() external {
+    function submitValue(uint256 _requestId,uint256 _value)  external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "AccessControl: sender must be an admin to submitValue");
         values[_requestId][block.timestamp] = _value;
         timestamps[_requestId].push(block.timestamp);
         emit NewValue(_requestId, block.timestamp, _value);
@@ -268,7 +271,8 @@ contract TellorPlayground is Ownable{
     * @param _requestId The tellorId to be disputed
     * @param _timestamp the timestamp that indentifies for the value
     */
-    function disputeValue(uint256 _requestId, uint256 _timestamp) onlyOwner() external {
+    function disputeValue(uint256 _requestId, uint256 _timestamp) external {
+        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "AccessControl: sender must be an admin to submitValue");
         values[_requestId][_timestamp] = 0;
         isDisputed[_requestId][_timestamp] = true;
     }

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.0;
 
 import "@openzeppelin/contracts/access/AccessControl.sol";
@@ -63,6 +64,7 @@ library SafeMath {
 contract TellorPlayground is AccessControl {
 
     using SafeMath for uint256;
+    
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
@@ -75,21 +77,82 @@ contract TellorPlayground is AccessControl {
     mapping(address => uint) public balances;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
+    
+    bytes32 public constant REPORTER_ROLE = keccak256("reporter");
 
     uint256 private _totalSupply;
     string private _name;
     string private _symbol;
     uint8 private _decimals;
 
+
     constructor (string memory name, string memory symbol) {
         _name = name;
         _symbol = symbol;
         _decimals = 18;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _setRoleAdmin(DEFAULT_ADMIN_ROLE, DEFAULT_ADMIN_ROLE);
+        _setRoleAdmin(REPORTER_ROLE, DEFAULT_ADMIN_ROLE);
     }
 
-      /**
+    /**
+     * @dev Modifier to restrict only to the admin role.
+     */
+    modifier onlyAdmin() {
+        require(isAdmin(msg.sender), "Restricted to admins.");
+        _;
+    }
+
+    /**
+     * @dev Restricted to members of the reporter role.
+     */
+    modifier onlyReporter() {
+        require(isReporter(msg.sender), "Restricted to reporters.");
+        _;
+    }
+
+    /**
+    @dev Add an account to the admin role. Restricted to admins.
+    */
+    function addAdmin(address account) public virtual onlyAdmin {
+        grantRole(DEFAULT_ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Add an account to the reporter role. Restricted to admins.
+     */
+    function addReporter(address account) public virtual onlyAdmin  {
+        grantRole(REPORTER_ROLE, account);
+    }
+
+    /** 
+     * @dev Remove an account from the reporter role. Restricted to admins.
+     */
+    function removeReporter(address account) public virtual onlyAdmin  {
+        revokeRole(REPORTER_ROLE, account);
+    }
+
+    /** 
+     * @dev Remove oneself from the admin role.
+     */
+    function renounceAdmin() public virtual {
+        renounceRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+    
+    /**
+     * @dev Return `true` if the account belongs to the admin role.
+     */
+    function isAdmin(address account) public virtual view returns (bool) {
+        return hasRole(DEFAULT_ADMIN_ROLE, account);
+    }
+
+    /**
+     * @dev Return `true` if the account belongs to the reporter role.
+     */
+    function isReporter(address account) public virtual view returns (bool)  {
+        return hasRole(REPORTER_ROLE, account);
+    }
+
+    /**
      * @dev Public function to mint tokens for the passed address
      * @param user The address which will own the tokens
      *
@@ -260,7 +323,7 @@ contract TellorPlayground is AccessControl {
     * @param _value the value for the requestId
     */
     function submitValue(uint256 _requestId,uint256 _value)  external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "AccessControl: sender must be an admin to submitValue");
+        require(isReporter(msg.sender) || isAdmin(msg.sender), "Sender must be an Admin or Reporter to submitValue");
         values[_requestId][block.timestamp] = _value;
         timestamps[_requestId].push(block.timestamp);
         emit NewValue(_requestId, block.timestamp, _value);
@@ -272,7 +335,7 @@ contract TellorPlayground is AccessControl {
     * @param _timestamp the timestamp that indentifies for the value
     */
     function disputeValue(uint256 _requestId, uint256 _timestamp) external {
-        require(hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "AccessControl: sender must be an admin to submitValue");
+        require(isReporter(msg.sender) || isAdmin(msg.sender), "Sender must be an Admin or Reporter to dispute a value");
         values[_requestId][_timestamp] = 0;
         isDisputed[_requestId][_timestamp] = true;
     }

@@ -5,6 +5,8 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 const accessToken = process.env.INFURA_TOKEN;
 const pk_rinkeby = process.env.RINKEBY_ETH_PK
 const pk_mainnet = process.env.ETH_PK
+const bsc_token  = process.env.BSC_TOKEN
+
 
 /**
  * Use this file to configure your truffle project. It's seeded with some
@@ -44,6 +46,12 @@ module.exports = {
    */
 
   networks: {
+    plugins: [
+      'truffle-plugin-verify'
+    ],
+    api_keys: {
+      bscscan: bsc_token
+    },
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
     // You should run a client (like ganache-cli, geth or parity) in a separate terminal
@@ -70,6 +78,24 @@ module.exports = {
       network_id: 4,
       gas: 8000000,
       gasPrice: 20000000000,
+    },
+    bsc_testnet: {
+      provider: () =>
+        new HDWalletProvider(
+          pk_rinkeby,
+          `https://data-seed-prebsc-1-s1.binance.org:8545`
+        ),
+      network_id: 97,
+      //confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
+    bsc: {
+      provider: () => new HDWalletProvider(mnemonic, `https://bsc-dataseed1.binance.org`),
+      network_id: 56,
+      confirmations: 10,
+      timeoutBlocks: 200,
+      skipDryRun: true
     },
     // Another network with more advanced options...
     // advanced: {

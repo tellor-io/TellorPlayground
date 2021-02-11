@@ -20,7 +20,8 @@
   },
   "homepage": "https://github.com/tellor-io/TellorPlayground#readme",
   "devDependencies": {
-    "truffle": "^5.1.51"
+    "truffle": "^5.1.51",
+    "truffle-plugin-verify": "^0.5.4"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^3.3.0",

@@ -70,7 +70,6 @@ contract("TellorPlayground Centralized Tests", function(accounts) {
 
 //////ExpectTrow not working
     it("Only admin should be able to add a reporter", async function() {
-      console.log(1)
       //the test fails because this fx is restricted to admin, not sure why expectThrow is not working on it
       await helper.expectThrow(
         master.addReporter(accounts[1], { from: accounts[2] } )

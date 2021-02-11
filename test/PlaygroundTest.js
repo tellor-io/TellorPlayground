@@ -72,19 +72,16 @@ contract("TellorPlayground Centralized Tests", function(accounts) {
     it("Only admin should be able to add a reporter", async function() {
       console.log(1)
       //the test fails because this fx is restricted to admin, not sure why expectThrow is not working on it
-      // await helper.expectThrow(
-      //   await master.addReporter(accounts[1], { from: accounts[2] } )
-      // )
-      console.log(2)
-      await master.addReporter(accounts[1],{ from: accounts[0] } )
-      console.log(3)
+      await helper.expectThrow(
+        master.addReporter(accounts[1], { from: accounts[2] } )
+      )
     });
 
     it("Can't tip without having TRB", async function() {
       //this fails as expected but expectThrow doesn't work
-        // await helper.expectThrow(
-        // await master.addTip(web3.utils.toWei("100", "ether") ,1,{ from: accounts[3] } )
-        // )
+        await helper.expectThrow(
+        master.addTip(web3.utils.toWei("100", "ether") ,1,{ from: accounts[3] } )
+        )
     });
 
     })

@@ -10,6 +10,7 @@ require("dotenv").config();
 //Run this commands to deploy tellor playground:
 //npx hardhat deploy --name "tellor" --symbol "PTRB" --net rinkeby --network rinkeby
 //npx hardhat deploy --name "tellor" --symbol "PTRB" --net mainnet --network mainnet
+//npx hardhat deploy --name tellor --symbol PTRB --net bsc_testnet --network bsc_testnet
 
 task("deploy", "Deploy and verify the contracts")
   .addParam("name", "coin name")
@@ -25,20 +26,20 @@ task("deploy", "Deploy and verify the contracts")
 
     await run("compile");
     const Tellor = await ethers.getContractFactory("TellorPlayground");
-    const tellor= await Tellor.deploy();
+    const tellor= await Tellor.deploy(name, symbol);
     console.log("Tellor deployed to:", tellor.address);
     await tellor.deployed();
 
-    if (net = "mainnet"){
+    if (net == "mainnet"){
         console.log("Tellor contract deployed to:", "https://etherscan.io/address/" + tellor.address);
         console.log("    transaction hash:", "https://etherscan.io/tx/" + tellor.deployTransaction.hash);
-    } else if (net = rinkeby) {
+    } else if (net == "rinkeby") {
         console.log("Tellor contract deployed to:", "https://rinkeby.etherscan.io/address/" + tellor.address);
         console.log("    transaction hash:", "https://rinkeby.etherscan.io/tx/" + tellor.deployTransaction.hash);
-    } else if (net = bsc_testnet) {
+    } else if (net == "bsc_testnet") {
         console.log("Tellor contract deployed to:", "https://testnet.bscscan.com/address/" + tellor.address);
         console.log("    transaction hash:", "https://testnet.bscscan.com/tx/" + tellor.deployTransaction.hash);
-    } else if (net = bsc) {
+    } else if (net == "bsc") {
     console.log("Tellor contract deployed to:", "https://bscscan.com/address/" + tellor.address);
     console.log("    transaction hash:", "https://bscscan.com/tx/" + tellor.deployTransaction.hash);
     } else {
@@ -55,6 +56,7 @@ task("deploy", "Deploy and verify the contracts")
 
     await run("verify:verify", {
       address: tellor.address,
+      constructorArguments: [name, symbol]
     },
     )
 
@@ -114,7 +116,8 @@ module.exports = {
   etherscan: {
       // Your API key for Etherscan
       // Obtain one at https://etherscan.io/
-      apiKey: process.env.ETHERSCAN
+      //apiKey: process.env.ETHERSCAN
+      apiKey: process.env.BSC_API
     },
 
     contractSizer: {

@@ -5,7 +5,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 const accessToken = process.env.INFURA_TOKEN;
 const pk_rinkeby = process.env.RINKEBY_ETH_PK
 const pk_mainnet = process.env.ETH_PK
-const bsc_token  = process.env.BSC_TOKEN
+const bsc_token  = process.env.BSC_API
 
 
 /**

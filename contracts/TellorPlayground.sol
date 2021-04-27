@@ -303,6 +303,12 @@ contract TellorPlayground {
         return values[_requestId][_timestamp];
     }
     
+    /**
+    * @dev Retreive value from oracle based on requestId/timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return bytes value for requestId/timestamp submitted
+    */
     function retrieveBytesData(uint256 _requestId, uint256 _timestamp) public view returns(bytes memory) {
         return bytesValues[_requestId][_timestamp];
     }

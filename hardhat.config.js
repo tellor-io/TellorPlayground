@@ -15,6 +15,8 @@ require("dotenv").config();
 //npx hardhat deploy --name tellor --symbol TRB --net arbitrum_testnet --network arbitrum_testnet
 //npx hardhat deploy --name tellor --symbol TRB --net polygon --network polygon
 //npx hardhat deploy --name tellor --symbol TRB --net polygon_testnet --network polygon_testnet
+//npx hardhat deploy --name tellor --symbol TRB --net xdaiSokol --network xdaiSokol
+//npx hardhat deploy --name tellor --symbol TRB --net xdai --network xdai
 
 task("deploy", "Deploy and verify the contracts")
   .addParam("name", "coin name")
@@ -55,6 +57,12 @@ task("deploy", "Deploy and verify the contracts")
     } else if (net == "arbitrum_testnet"){
         console.log("tellor contract deployed to:","https://explorer.arbitrum.io/#/ "+ tellor.address)
         console.log("    transaction hash:", "https://explorer.arbitrum.io/#/tx/" + tellor.deployTransaction.hash);
+    }  else if (net == "xdaiSokol"){ //https://blockscout.com/poa/xdai/address/
+      console.log("tellor contract deployed to:","https://blockscout.com/poa/sokol/address/"+ tellor.address)
+      console.log("    transaction hash:", "https://blockscout.com/poa/sokol/tx/" + tellor.deployTransaction.hash);
+    } else if (net == "xdai"){ //https://blockscout.com/poa/xdai/address/
+      console.log("tellor contract deployed to:","https://blockscout.com/xdai/mainnet/address/"+ tellor.address)
+      console.log("    transaction hash:", "https://blockscout.com/xdai/mainnet/tx/" + tellor.deployTransaction.hash);
     } else {
         console.log("Please add network explorer details")
     }
@@ -143,7 +151,23 @@ module.exports = {
         //chainId: 212984383488152,
         gasPrice: 0,
         accounts: [process.env.TESTNET_PK]
-      } 
+      } ,
+
+      xdai: {
+        url: "https://dai.poa.network",
+        //network_id: 100,
+        gas: 3000000,
+        gasPrice: 1000000000,
+        accounts: [process.env.TESTNET_PK]
+      },
+      xdaiSokol: {
+        url: "https://sokol.poa.network",
+        //network_id: 77,
+        gas: 3000000,
+        gasPrice: 1000000000,
+        accounts: [process.env.TESTNET_PK]
+      }
+
   },
   etherscan: {
       // Your API key for Etherscan

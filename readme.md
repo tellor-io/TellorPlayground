@@ -12,7 +12,7 @@
 
 
 # TL:DR
-Tellor Playground is aims to help anyone building on Tellor to quickily test and implement ideas. It's available on all testnets at the address:
+Tellor Playground is aims to help anyone building on Tellor to quickily test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at these addresses:
 
 Rinkeby: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://rinkeby.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
 

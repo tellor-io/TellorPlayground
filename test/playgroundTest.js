@@ -9,6 +9,8 @@ const UINT_VALUE_10 = 38271;
 const UINT_VALUE_11 = 83727917;
 const BYTES_VALUE_00 = "0xabcd";
 const BYTES_VALUE_01 = "0x1234";
+const BYTES_VALUE_10 = "0xb9f7";
+const BYTES_VALUE_11 = "0x54eb";
 const FAUCET_AMOUNT = BigInt(1000) * precision;
 const BYTES_ZERO = "0x";
 const TOKEN_NAME = "Testing_TRB";
@@ -26,26 +28,31 @@ describe("TellorPlayground", function() {
 		await tellorPlayground.deployed();
 	});
 
-	it("Mint from faucet and get user balance", async function() {
+	it("Test Faucet", async function() {
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(0);
 		await tellorPlayground.faucet(owner.address);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
 	});
 
-	it("Get token name and symbol", async function() {
+	it("Test Name", async function() {
 		expect(await tellorPlayground.name()).to.equal(TOKEN_NAME);
+	});
+
+	it("Test Symbol", async function() {
 		expect(await tellorPlayground.symbol()).to.equal(TOKEN_SYMBOL);
 	});
 
-	it("Get token decimals", async function() {
+	it("Test Decimals", async function() {
 		expect(await tellorPlayground.decimals()).to.equal(18);
 	});
 
-	it("Get token total supply", async function() {
+	it("Test Total Supply", async function() {
 		expect(await tellorPlayground.totalSupply()).to.equal(0);
+		await tellorPlayground.faucet(owner.address);
+		expect(await tellorPlayground.totalSupply()).to.equal(BigInt(1000) * precision);
 	});
 
-	it("Transfer token", async function() {
+	it("Test Transfer", async function() {
 		await tellorPlayground.faucet(owner.address);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
 		expect(await tellorPlayground.balanceOf(addr1.address)).to.equal(0);
@@ -55,7 +62,7 @@ describe("TellorPlayground", function() {
 		await expect(tellorPlayground.transfer(addr1.address, BigInt(1000) * precision)).to.be.reverted;
 	});
 
-	it("Approve transfer, check allowance, and transfer from", async function() {
+	it("Test Approve", async function() {
 		let approvalAmount = BigInt(500) * precision;
 		await tellorPlayground.faucet(owner.address);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
@@ -69,7 +76,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
 	});
 
-	it("Increase allowance", async function() {
+	it("Test Increase Allowance", async function() {
 		let approvalAmount = BigInt(500) * precision;
 		let allowanceIncreaseAmount = BigInt(250) * precision;
 		await tellorPlayground.faucet(owner.address);
@@ -85,7 +92,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
 	});
 
-	it("Decrease allowance", async function() {
+	it("Test Decrease Allowance", async function() {
 		let approvalAmount = BigInt(500) * precision;
 		let allowanceDecreaseAmount = BigInt(250) * precision;
 		await tellorPlayground.faucet(owner.address);
@@ -99,37 +106,72 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.balanceOf(addr2.address)).to.equal(approvalAmount - allowanceDecreaseAmount);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT - (approvalAmount - allowanceDecreaseAmount));
 		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
-	})
+	});
 
-  it("Should allow user to submit and retrieve a uint256 value", async function() {
+  it("Test Submit Value", async function() {
     await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_00);
     let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
     expect(await tellorPlayground.retrieveData(0, timestamp00)).to.equal(UINT_VALUE_00);
   });
 
-  it("Should allow user to submit and retrieve a bytes value", async function() {
+  it("Test Submit Bytes Value", async function() {
     await tellorPlayground.submitBytesValue(REQUEST_ID_0, BYTES_VALUE_00);
     let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
     expect(await tellorPlayground.retrieveBytesData(0, timestamp00)).to.equal(BYTES_VALUE_00);
   });
 
-  it("Should allow user to dispute uint value", async function() {
+  it("Test Dispute Value", async function() {
     await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_00);
     let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
     expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(UINT_VALUE_00);
     await tellorPlayground.disputeValue(REQUEST_ID_0, timestamp00);
     expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(0);
+		expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp00)).to.equal(true);
   });
 
-  it("Should allow user to dispute bytes value", async function() {
+  it("Test Dispute Bytes Value", async function() {
     await tellorPlayground.submitBytesValue(REQUEST_ID_0, BYTES_VALUE_00);
     let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
     expect(await tellorPlayground.retrieveBytesData(0, timestamp00)).to.equal(BYTES_VALUE_00);
     await tellorPlayground.disputeBytesValue(REQUEST_ID_0, timestamp00);
     expect(await tellorPlayground.retrieveBytesData(REQUEST_ID_0, timestamp00)).to.equal(BYTES_ZERO);
+		expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp00)).to.equal(true);
   });
 
-	it("Should be able to mint from faucet and tip", async function() {
+	it("Test Retrieve Data", async function() {
+		await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_00);
+		await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_01);
+    let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
+		let timestamp01 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 1);
+    expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(UINT_VALUE_00);
+		expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp01)).to.equal(UINT_VALUE_01);
+	});
+
+	it("Test Retrieve Bytes Data", async function() {
+		await tellorPlayground.submitBytesValue(REQUEST_ID_0, BYTES_VALUE_00);
+		await tellorPlayground.submitBytesValue(REQUEST_ID_0, BYTES_VALUE_01);
+    let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
+		let timestamp01 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 1);
+    expect(await tellorPlayground.retrieveBytesData(REQUEST_ID_0, timestamp00)).to.equal(BYTES_VALUE_00);
+		expect(await tellorPlayground.retrieveBytesData(REQUEST_ID_0, timestamp01)).to.equal(BYTES_VALUE_01);
+	});
+
+	it("Test Get New Value Count By Request Id", async function() {
+		expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_0)).to.equal(0);
+		expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_1)).to.equal(0);
+    await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_00);
+		await tellorPlayground.submitBytesValue(REQUEST_ID_1, BYTES_VALUE_10);
+    expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_0)).to.equal(1);
+    expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_1)).to.equal(1);
+  });
+
+	it("Test Get Timestamp By Request Id and Index", async function() {
+		expect(await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0)).to.equal(0);
+		await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_00);
+		expect(await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0)).to.be.above(0);
+	});
+
+	it("Test Add Tip", async function() {
 		expect(await tellorPlayground.balanceOf(tellorPlayground.address)).to.equal(0);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(0);
 		await tellorPlayground.faucet(owner.address);
@@ -137,5 +179,5 @@ describe("TellorPlayground", function() {
 		await (tellorPlayground.addTip(REQUEST_ID_0, BigInt(10) * precision));
 		expect(await tellorPlayground.balanceOf(tellorPlayground.address)).to.equal(BigInt(10) * precision);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(990) * precision);
-	})
+	});
 });

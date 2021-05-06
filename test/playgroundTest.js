@@ -28,10 +28,18 @@ describe("TellorPlayground", function() {
 		await tellorPlayground.deployed();
 	});
 
+	it("Test Constructor()", async function() {
+		expect(await tellorPlayground.name()).to.equal(TOKEN_NAME);
+		expect(await tellorPlayground.symbol()).to.equal(TOKEN_SYMBOL);
+		expect(await tellorPlayground.decimals()).to.equal(18);
+	});
+
 	it("Test Faucet", async function() {
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(0);
 		await tellorPlayground.faucet(owner.address);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
+		expect(await tellorPlayground.totalSupply()).to.equal(FAUCET_AMOUNT);
+		await expect(tellorPlayground.faucet("0x0000000000000000000000000000000000000000")).to.be.reverted;
 	});
 
 	it("Test Name", async function() {
@@ -60,6 +68,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(750) * precision);
 		expect(await tellorPlayground.balanceOf(addr1.address)).to.equal(BigInt(250) * precision);
 		await expect(tellorPlayground.transfer(addr1.address, BigInt(1000) * precision)).to.be.reverted;
+		await expect(tellorPlayground.transfer("0x0000000000000000000000000000000000000000", 1)).to.be.reverted;
 	});
 
 	it("Test Approve", async function() {
@@ -74,6 +83,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.balanceOf(addr2.address)).to.equal(approvalAmount);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT - approvalAmount);
 		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
+		await expect(tellorPlayground.approve("0x0000000000000000000000000000000000000000", approvalAmount)).to.be.reverted;
 	});
 
 	it("Test Increase Allowance", async function() {

@@ -15,11 +15,12 @@ const FAUCET_AMOUNT = BigInt(1000) * precision;
 const BYTES_ZERO = "0x";
 const TOKEN_NAME = "Testing_TRB";
 const TOKEN_SYMBOL = "tTRB";
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 describe("TellorPlayground", function() {
 
 	let tellorPlayground;
-	let owner, addr1, addr2;
+	let owner, addr0, addr1, addr2;
 
 	beforeEach(async function () {
 		const TellorPlayground = await ethers.getContractFactory("TellorPlayground");
@@ -39,7 +40,7 @@ describe("TellorPlayground", function() {
 		await tellorPlayground.faucet(owner.address);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
 		expect(await tellorPlayground.totalSupply()).to.equal(FAUCET_AMOUNT);
-		await expect(tellorPlayground.faucet("0x0000000000000000000000000000000000000000")).to.be.reverted;
+		await expect(tellorPlayground.faucet(ZERO_ADDRESS)).to.be.reverted;
 	});
 
 	it("Test Name", async function() {
@@ -68,7 +69,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(750) * precision);
 		expect(await tellorPlayground.balanceOf(addr1.address)).to.equal(BigInt(250) * precision);
 		await expect(tellorPlayground.transfer(addr1.address, BigInt(1000) * precision)).to.be.reverted;
-		await expect(tellorPlayground.transfer("0x0000000000000000000000000000000000000000", 1)).to.be.reverted;
+		await expect(tellorPlayground.transfer(ZERO_ADDRESS, 1)).to.be.reverted;
 	});
 
 	it("Test Approve", async function() {
@@ -83,7 +84,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.balanceOf(addr2.address)).to.equal(approvalAmount);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT - approvalAmount);
 		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
-		await expect(tellorPlayground.approve("0x0000000000000000000000000000000000000000", approvalAmount)).to.be.reverted;
+		await expect(tellorPlayground.approve(ZERO_ADDRESS, approvalAmount)).to.be.reverted;
 	});
 
 	it("Test Increase Allowance", async function() {
@@ -132,20 +133,30 @@ describe("TellorPlayground", function() {
 
   it("Test Dispute Value", async function() {
     await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_00);
+		await tellorPlayground.submitValue(REQUEST_ID_0, UINT_VALUE_01);
     let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
+		let timestamp01 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 1);
     expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(UINT_VALUE_00);
+		expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp01)).to.equal(UINT_VALUE_01);
     await tellorPlayground.disputeValue(REQUEST_ID_0, timestamp00);
     expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(0);
+		expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp01)).to.equal(UINT_VALUE_01);
 		expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp00)).to.equal(true);
+		expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp01)).to.equal(false);
   });
 
   it("Test Dispute Bytes Value", async function() {
     await tellorPlayground.submitBytesValue(REQUEST_ID_0, BYTES_VALUE_00);
+		await tellorPlayground.submitBytesValue(REQUEST_ID_0, BYTES_VALUE_01);
     let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
+		let timestamp01 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 1);
     expect(await tellorPlayground.retrieveBytesData(0, timestamp00)).to.equal(BYTES_VALUE_00);
+		expect(await tellorPlayground.retrieveBytesData(0, timestamp01)).to.equal(BYTES_VALUE_01);
     await tellorPlayground.disputeBytesValue(REQUEST_ID_0, timestamp00);
     expect(await tellorPlayground.retrieveBytesData(REQUEST_ID_0, timestamp00)).to.equal(BYTES_ZERO);
+		expect(await tellorPlayground.retrieveBytesData(REQUEST_ID_0, timestamp01)).to.equal(BYTES_VALUE_01);
 		expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp00)).to.equal(true);
+		expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp01)).to.equal(false);
   });
 
 	it("Test Retrieve Data", async function() {

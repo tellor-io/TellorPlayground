@@ -1,6 +1,6 @@
 <p align="center">
   <a href='https://www.tellor.io/'>
-    <img src= 'https://raw.githubusercontent.com/tellor-io/TellorBrandMaterials/master/LightBkrnd_RGB.png' width="250" height="200" alt='tellor.io' />
+    <img src= 'https://github.com/tellor-io/TellorBrandMaterials/blob/master/Swoosh%20and%20wordmark%20new/SwooshWordmark.png' width="350" alt='tellor.io' />
   </a>
 </p>
 

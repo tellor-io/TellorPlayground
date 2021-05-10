@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity 0.7.0;
 
 library SafeMath {
@@ -65,8 +66,10 @@ contract TellorPlayground {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event TipAdded(address indexed _sender, uint256 indexed _requestId, uint256 _tip);
     event NewValue(uint256 _requestId, uint256 _time, uint256 _value);
+    event NewBytesValue(uint256 _requestId, uint256 _time, bytes _value);
     
     mapping(uint256 => mapping(uint256 => uint256)) public values; //requestId -> timestamp -> value
+    mapping(uint256 => mapping(uint256 => bytes)) public bytesValues; //requestId -> timestamp -> value
     mapping(uint256 => mapping(uint256 => bool)) public isDisputed; //requestId -> timestamp -> value
     mapping(uint256 => uint256[]) public timestamps;
     mapping(address => uint) public balances;
@@ -254,10 +257,21 @@ contract TellorPlayground {
     * @param _requestId The tellorId to associate the value to
     * @param _value the value for the requestId
     */
-    function submitValue(uint256 _requestId,uint256 _value) external {
+    function submitValue(uint256 _requestId, uint256 _value) external {
         values[_requestId][block.timestamp] = _value;
         timestamps[_requestId].push(block.timestamp);
         emit NewValue(_requestId, block.timestamp, _value);
+    }
+    
+    /**
+    * @dev A mock function to submit a value to be read withoun miners needed
+    * @param _requestId The tellorId to associate the value to
+    * @param _value the value for the requestId
+    */
+    function submitBytesValue(uint256 _requestId, bytes memory _value) external {
+        bytesValues[_requestId][block.timestamp] = _value;
+        timestamps[_requestId].push(block.timestamp);
+        emit NewBytesValue(_requestId, block.timestamp, _value);
     }
 
     /**
@@ -269,15 +283,35 @@ contract TellorPlayground {
         values[_requestId][_timestamp] = 0;
         isDisputed[_requestId][_timestamp] = true;
     }
+    
+    /**
+    * @dev A mock function to create a dispute
+    * @param _requestId The tellorId to be disputed
+    * @param _timestamp the timestamp that indentifies for the value
+    */
+    function disputeBytesValue(uint256 _requestId, uint256 _timestamp) external {
+        bytesValues[_requestId][_timestamp] = '';
+        isDisputed[_requestId][_timestamp] = true;
+    }
 
      /**
     * @dev Retreive value from oracle based on requestId/timestamp
     * @param _requestId being requested
     * @param _timestamp to retreive data/value from
-    * @return uint value for requestId/timestamp submitted
+    * @return uint256 value for requestId/timestamp submitted
     */
     function retrieveData(uint256 _requestId, uint256 _timestamp) public view returns(uint256){
         return values[_requestId][_timestamp];
+    }
+    
+    /**
+    * @dev Retreive value from oracle based on requestId/timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return bytes value for requestId/timestamp submitted
+    */
+    function retrieveBytesData(uint256 _requestId, uint256 _timestamp) public view returns(bytes memory) {
+        return bytesValues[_requestId][_timestamp];
     }
 
     /**

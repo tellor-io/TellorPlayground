@@ -12,7 +12,7 @@
 
 
 # TL:DR
-Tellor Playground is aims to help anyone building on Tellor to quickily test and implement ideas. It's available on all testnets at the address:
+Tellor Playground is aims to help anyone building on Tellor to quickily test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at these addresses:
 
 Rinkeby: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://rinkeby.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
 
@@ -22,7 +22,11 @@ Ropsten: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://ropsten.ethersca
 
 Goerli: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://goerli.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
 
+BSC Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://testnet.bscscan.com/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24#code)
 
+Polygon Mumbai Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://explorer-mumbai.maticvigil.com/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24/contracts)
+
+Arbitrum Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://explorer.arbitrum.io/#/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24)
 
 ## Why use Tellor Playground
 The [Tellor Core](https://github.com/tellor-io/TellorCore) repositorry is a large project that holds all the on-chain logic of the system, but a lot of the code there is aimed at dealing with stakers, miners, disputes, among other stuff, which most projets that want to ask and read tellor values don't really need to worry about.

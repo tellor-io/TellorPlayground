@@ -1,3 +1,5 @@
 build/
 node_modules/
-contracts/artifacts
+.env
+artifacts/
+cache/

@@ -1,13 +1,13 @@
 <p align="center">
   <a href='https://www.tellor.io/'>
-    <img src= 'https://raw.githubusercontent.com/tellor-io/TellorBrandMaterials/master/LightBkrnd_RGB.png' width="250" height="200" alt='tellor.io' />
+    <img src= 'https://github.com/tellor-io/TellorBrandMaterials/blob/master/Swoosh%20and%20wordmark%20new/SwooshWordmark.png' width="350" alt='tellor.io' />
   </a>
 </p>
 
 <p align="center">
   <a href='https://twitter.com/WeAreTellor'>
     <img src= 'https://img.shields.io/twitter/url/http/shields.io.svg?style=social' alt='Twitter WeAreTellor' />
-  </a> 
+  </a>
 </p>
 
 
@@ -29,7 +29,7 @@ Polygon Mumbai Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://e
 Arbitrum Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://explorer.arbitrum.io/#/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24)
 
 ## Why use Tellor Playground
-The [Tellor Core](https://github.com/tellor-io/TellorCore) repositorry is a large project that holds all the on-chain logic of the system, but a lot of the code there is aimed at dealing with stakers, miners, disputes, among other stuff, which most projets that want to ask and read tellor values don't really need to worry about. 
+The [Tellor Core](https://github.com/tellor-io/TellorCore) repositorry is a large project that holds all the on-chain logic of the system, but a lot of the code there is aimed at dealing with stakers, miners, disputes, among other stuff, which most projets that want to ask and read tellor values don't really need to worry about.
 
 The Playground is a simplified(and not a real oracle) Tellor, containing only the small bits that third party developers projects integrating need to worry about: getting data, adding tips, reading events ans so forth.
 
@@ -44,10 +44,10 @@ To include a value in the Rinkeby version, it would first need to be created a [
 
 If your smart contract needs to read Tellor values, you might want to use the helper [usingTellor](https://github.com/tellor-io/usingtellor), which already provides a few helpful functions to fetch data.
 
-The first setp is to inherit the UsingTellor contract, passing the TellorPlayground address as a constructor argument: 
+The first setp is to inherit the UsingTellor contract, passing the TellorPlayground address as a constructor argument:
 
 Here's an example
-```solidity 
+```solidity
 contract BtcPriceContract is UsingTellor {
 
   //This Contract now have access to all functions on UsingTellor
@@ -64,7 +64,7 @@ contract BtcPriceContract is UsingTellor {
 ### Setting values in the Playground
 To be able to properly read a value from playground, you'll need to first set the value yourself, since it does not rely on miners.
 
-To do that, you can choose an arbitrary requestId, which is an `uint256`, and call the function `submitValue` with the any value you wish. This will add a data point to the Playground and save the timestamp which was submitted. Your contract can now easily read Tellor values.
+To do that, you can choose an arbitrary requestId, which is an `uint256`, and call the function `submitValue` or `submitBytesValue` with the any value you wish. This will add a data point to the Playground and save the timestamp which was submitted. Your contract can now easily read Tellor values.
 
 
 ## Available Functions
@@ -78,12 +78,26 @@ Here are all the functions available in Tellor Playground:
     */
     function submitValue(uint256 _requestId,uint256 _value) external;
 
+	/**
+    * @dev A mock function to submit a value to be read withoun miners needed
+    * @param _requestId The tellorId to associate the value to
+    * @param _value the value for the requestId
+    */
+    function submitBytesValue(uint256 _requestId, bytes memory _value) external;
+
     /**
     * @dev A mock function to create a dispute
     * @param _requestId The tellorId to be disputed
     * @param _timestamp the timestamp that indentifies for the value
     */
     function disputeValue(uint256 _requestId, uint256 _timestamp) external;
+
+	/**
+    * @dev A mock function to create a dispute
+    * @param _requestId The tellorId to be disputed
+    * @param _timestamp the timestamp that indentifies for the value
+    */
+    function disputeBytesValue(uint256 _requestId, uint256 _timestamp) external;
 
      /**
     * @dev Retreive value from oracle based on requestId/timestamp
@@ -92,6 +106,14 @@ Here are all the functions available in Tellor Playground:
     * @return uint value for requestId/timestamp submitted
     */
     function retrieveData(uint256 _requestId, uint256 _timestamp) public view returns(uint256);
+
+	/**
+    * @dev Retreive value from oracle based on requestId/timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return bytes value for requestId/timestamp submitted
+    */
+    function retrieveBytesData(uint256 _requestId, uint256 _timestamp) public view returns(bytes memory);
 
     /**
     * @dev Gets if the mined value for the specified requestId/_timestamp is currently under dispute
@@ -126,7 +148,7 @@ Here are all the functions available in Tellor Playground:
 ```
 
 Tellor Playground is also an ERC20 token, and if you want to add tips to your request, you might need to get some test tokens. For that there's an available function:
-```solidity 
+```solidity
      /**
      * @dev Public function to mint tokens for the passed address
      * @param user The address which will own the tokens

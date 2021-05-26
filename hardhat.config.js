@@ -85,7 +85,6 @@ task("deploy", "Deploy and verify the contracts")
 
   });
 
-
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
@@ -180,6 +179,5 @@ module.exports = {
       alphaSort: true,
       runOnCompile: true,
       disambiguatePaths: false,
-    },
-
+    }
 };

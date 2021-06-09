@@ -4,6 +4,7 @@ require('hardhat-contract-sizer');
 require("solidity-coverage");
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
 
 
@@ -53,7 +54,7 @@ task("deploy", "Deploy and verify the contracts")
         console.log("    transaction hash:", "https://explorer-mainnet.maticvigil.com/tx/" + tellor.deployTransaction.hash);
     } else if (net == "polygon_testnet") {
         console.log("Tellor contract deployed to:", "https://explorer-mumbai.maticvigil.com/" + tellor.address);
-        console.log("    transaction hash:", "https://explorer-mumbai.maticvigil.com/tx/" + tellor.deployTransaction.hash);  
+        console.log("    transaction hash:", "https://explorer-mumbai.maticvigil.com/tx/" + tellor.deployTransaction.hash);
     } else if (net == "arbitrum_testnet"){
         console.log("tellor contract deployed to:","https://explorer.arbitrum.io/#/ "+ tellor.address)
         console.log("    transaction hash:", "https://explorer.arbitrum.io/#/tx/" + tellor.deployTransaction.hash);
@@ -126,24 +127,24 @@ module.exports = {
         gasPrice: 20000000000,
         accounts: [process.env.TESTNET_PK]
       },
-      bsc: {
-        url: "https://bsc-dataseed.binance.org/",
-        chainId: 56,
-        gasPrice: 20000000000,
-        accounts: [process.env.MAINNET_PK]
-      } ,
+      // bsc: {
+      //   url: "https://bsc-dataseed.binance.org/",
+      //   chainId: 56,
+      //   gasPrice: 20000000000,
+      //   accounts: [process.env.MAINNET_PK]
+      // } ,
       polygon_testnet: {
         url: "https://rpc-mumbai.maticvigil.com/v1/" + process.env.MATIC_ACCESS_TOKEN,
         chainId: 80001,
         gasPrice: 20000000000,
         accounts: [process.env.TESTNET_PK]
       } ,
-      polygon: {
-        url: "https://rpc-mainnet.maticvigil.com/" + process.env.MATIC_ACCESS_TOKEN,
-        chainId: 137,
-        gasPrice: 20000000000,
-        accounts: [process.env.MAINNET_PK]
-      } ,
+      // polygon: {
+      //   url: "https://rpc-mainnet.maticvigil.com/" + process.env.MATIC_ACCESS_TOKEN,
+      //   chainId: 137,
+      //   gasPrice: 20000000000,
+      //   accounts: [process.env.MAINNET_PK]
+      // } ,
 
       arbitrum_testnet: {
         url: "https://kovan4.arbitrum.io/rpc",

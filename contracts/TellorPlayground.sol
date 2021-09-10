@@ -119,15 +119,15 @@ contract TellorPlayground {
 
      /**
      * @dev Transfer tokens from user to another
-     * @param sender The address which owns the tokens
-     * @param recipient The destination address
-     * @param amount The amount of tokens, including decimals, to transfer
+     * @param _sender The address which owns the tokens
+     * @param _recipient The destination address
+     * @param _amount The amount of tokens, including decimals, to transfer
      * @return bool If the transfer succeeded
      *
      */
-    function transferFrom(address sender, address recipient, uint256 amount) public virtual returns (bool) {
-        _transfer(sender, recipient, amount);
-        _approve(sender, msg.sender, _allowances[sender][msg.sender] -amount);
+    function transferFrom(address _sender, address _recipient, uint256 _amount) public virtual returns (bool) {
+        _transfer(_sender, _recipient, _amount);
+        _approve(_sender, msg.sender, _allowances[_sender][msg.sender] -_amount);
         return true;
     }
 

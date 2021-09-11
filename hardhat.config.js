@@ -135,7 +135,7 @@ module.exports = {
       //   accounts: [process.env.PRIVATE_KEY],
       //   gas: 10000000 ,
       //   gasPrice: 50000000000
-      // }  
+      // }
   },
   etherscan: {
     // Your API key for Etherscan
@@ -151,7 +151,7 @@ module.exports = {
 
 
 
- 
+
 }
 
 
@@ -180,9 +180,10 @@ module.exports = {
     //   }
     // },
       rinkeby: {
-        //url: "https://rinkeby.infura.io/v3/63ab6bb8ae4a4eedb2a55812e0a615a0" ,
+        // url: "https://rinkeby.infura.io/v3/63ab6bb8ae4a4eedb2a55812e0a615a0" ,
         url: `${[process.env.NODE_URL_RINKEBY]}`,
-        accounts: [process.env.TESTNET_PK],
+        // accounts: [process.env.TESTNET_PK],
+        seeds: [process.env.TESTNET_PK],
         gas: 10000000 ,
         gasPrice: 110000000000
       } //,
@@ -241,13 +242,13 @@ module.exports = {
 
 
  },
-  
+
    etherscan: {
       //Your API key for Etherscan
       //Obtain one at https://etherscan.io/
       apiKey: process.env.ETHERSCAN
       //apiKey: process.env.BSC_API
-    }, 
+    },
 
     contractSizer: {
       alphaSort: true,

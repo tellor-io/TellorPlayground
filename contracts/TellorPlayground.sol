@@ -6,7 +6,7 @@ contract TellorPlayground {
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    event TipAdded(address indexed _sender, bytes32 indexed _requestId, uint256 _tip);
+    event TipAdded(address indexed _sender, bytes32 indexed _requestId, uint256 _tip, bytes _data);
     event NewValue(bytes32 _requestId, uint256 _time, bytes _value);
     
     mapping(bytes32 => mapping(uint256 => bytes)) public values; //requestId -> timestamp -> value
@@ -239,9 +239,10 @@ contract TellorPlayground {
     * @dev Adds a tip to a given request Id.
     * @param _requestId is the requestId to look up
     * @param _amount is the amount of tips
+    * @param _data is the extra bytes data needed to fulfill the request
     */
-    function addTip(bytes32 _requestId, uint256 _amount) external {
+    function addTip(bytes32 _requestId, uint256 _amount, bytes memory _data) external {
         _transfer(msg.sender, address(this), _amount);
-        emit TipAdded(msg.sender, _requestId, _amount);
+        emit TipAdded(msg.sender, _requestId, _amount, _data);
     }
 }

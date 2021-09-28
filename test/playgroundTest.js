@@ -127,7 +127,7 @@ describe("TellorPlayground", function() {
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(0);
 		await tellorPlayground.faucet(owner.address);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(1000) * precision);
-		await (tellorPlayground.addTip(REQUEST_ID_0, BigInt(10) * precision));
+		await (tellorPlayground.addTip(REQUEST_ID_0, BigInt(10) * precision, '0x'));
 		expect(await tellorPlayground.balanceOf(tellorPlayground.address)).to.equal(BigInt(10) * precision);
 		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(990) * precision);
 	});

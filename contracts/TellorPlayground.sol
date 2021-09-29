@@ -9,6 +9,7 @@ contract TellorPlayground {
     event TipAdded(address indexed _sender, bytes32 indexed _requestId, uint256 _tip, bytes _data);
     event NewValue(bytes32 _requestId, uint256 _time, bytes _value);
     
+    mapping(bytes32 => uint256) public tips; // mapping of data IDs to the amount of TRB they are tipped
     mapping(bytes32 => mapping(uint256 => bytes)) public values; //requestId -> timestamp -> value
     mapping(bytes32=> mapping(uint256 => bool)) public isDisputed; //requestId -> timestamp -> value
     mapping(bytes32 => uint256[]) public timestamps;
@@ -20,6 +21,11 @@ contract TellorPlayground {
     string private _name;
     string private _symbol;
     uint8 private _decimals;
+
+    uint256 public timeOfLastNewValue = block.timestamp; // time of the last new value, originally set to the block timestamp
+    uint256 public tipsInContract; // number of tips within the contract
+    uint256 public timeBasedReward = 5e17; // time based reward for a reporter for successfully submitting a value
+
 
     constructor (string memory _iName, string memory _iSymbol) {
         _name = _iName;
@@ -181,7 +187,14 @@ contract TellorPlayground {
         require(_nonce ==  timestamps[_requestId].length, "nonce should be correct");
         values[_requestId][block.timestamp] = _value;
         timestamps[_requestId].push(block.timestamp);
+        // Send tips + timeBasedReward to reporter of value, and reset tips for ID
+        (uint256 _tip, uint256 _reward) = getCurrentReward(_requestId);
+        tipsInContract -= _tip;
+        if (_reward + _tip > 0) {
+            transfer(msg.sender, _reward + _tip);
+        }
         emit NewValue(_requestId, block.timestamp, _value);
+        
     }
 
     /**
@@ -233,6 +246,24 @@ contract TellorPlayground {
         uint256 len = timestamps[_requestId].length;
         if(len == 0 || len <= _index) return 0; 
         return timestamps[_requestId][_index];
+    }
+
+    /**
+     * @dev Calculates the current reward for a reporter given tips
+     * and time based reward
+     * @param _id is ID of the specific data feed
+     */
+    function getCurrentReward(bytes32 _id)
+        public
+        view
+        returns (uint256, uint256)
+    {
+        uint256 _timeDiff = block.timestamp - timeOfLastNewValue;
+        uint256 _reward = (_timeDiff * timeBasedReward) / 300; //.5 TRB per 5 minutes (should we make this upgradeable)
+        if (balanceOf(address(this)) < _reward + tipsInContract) {
+            _reward = balanceOf(address(this)) - tipsInContract;
+        }
+        return (tips[_id], _reward);
     }
 
     /**

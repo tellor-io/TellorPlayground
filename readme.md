@@ -78,7 +78,7 @@ Here are all the functions available in Tellor Playground:
     */
     function submitValue(uint256 _requestId,uint256 _value) external;
 
-	/**
+    /**
     * @dev A mock function to submit a value to be read withoun miners needed
     * @param _requestId The tellorId to associate the value to
     * @param _value the value for the requestId
@@ -92,7 +92,7 @@ Here are all the functions available in Tellor Playground:
     */
     function disputeValue(uint256 _requestId, uint256 _timestamp) external;
 
-	/**
+    /**
     * @dev A mock function to create a dispute
     * @param _requestId The tellorId to be disputed
     * @param _timestamp the timestamp that indentifies for the value
@@ -107,7 +107,7 @@ Here are all the functions available in Tellor Playground:
     */
     function retrieveData(uint256 _requestId, uint256 _timestamp) public view returns(uint256);
 
-	/**
+    /**
     * @dev Retreive value from oracle based on requestId/timestamp
     * @param _requestId being requested
     * @param _timestamp to retreive data/value from
@@ -129,6 +129,14 @@ Here are all the functions available in Tellor Playground:
     * @return uint count of the number of values received for the requestId
     */
     function getNewValueCountbyRequestId(uint256 _requestId) public view returns(uint);
+    
+    /**
+    * @dev Gets the timestamp for the value based on their index
+    * @param _requestId is the requestId to look up
+    * @param _index is the value index to look up
+    * @return uint timestamp
+    */
+    function getTimestampbyRequestIDandIndex(bytes32 _requestId, uint256 _index) public view returns(uint256) {
 
     /**
     * @dev Gets the timestamp for the value based on their index
@@ -142,8 +150,9 @@ Here are all the functions available in Tellor Playground:
     * @dev Adds a tip to a given request Id.
     * @param _requestId is the requestId to look up
     * @param _amount is the amount of tips
+    * @param _data is the extra bytes data needed to fulfill the request
     */
-    function addTip(uint256 _requestId, uint256 _amount) external;
+    function addTip(bytes32 _requestId, uint256 _amount, bytes memory _data) external {
 
 ```
 

@@ -1,18 +1,23 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.0;
 
-
 contract TellorPlayground {
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
-    event TipAdded(address indexed _sender, bytes32 indexed _requestId, uint256 _tip, bytes _data);
-    event NewValue(bytes32 _requestId, uint256 _time, bytes _value);
-    
-    mapping(bytes32 => mapping(uint256 => bytes)) public values; //requestId -> timestamp -> value
-    mapping(bytes32=> mapping(uint256 => bool)) public isDisputed; //requestId -> timestamp -> value
+    event TipAdded(address indexed _sender, bytes32 indexed _queryId, uint256 _tip, bytes _data);
+    event NewReport(
+        bytes32 _queryId,
+        uint256 _time,
+        bytes _value,
+        uint256 _nonce,
+        bytes _queryData,
+        address _reporter
+    );
+
+    mapping(bytes32 => mapping(uint256 => bytes)) public values; //queryId -> timestamp -> value
+    mapping(bytes32=> mapping(uint256 => bool)) public isDisputed; //queryId -> timestamp -> value
     mapping(bytes32 => uint256[]) public timestamps;
-    mapping(address => uint) public balances;
     mapping (address => uint256) private _balances;
     mapping (address => mapping (address => uint256)) private _allowances;
 
@@ -171,78 +176,131 @@ contract TellorPlayground {
         _allowances[_owner][_spender] = _amount;
         emit Approval(_owner, _spender, _amount);
     }
-    
+
     /**
-    * @dev A mock function to submit a value to be read withoun miners needed
-    * @param _requestId The tellorId to associate the value to
-    * @param _value the value for the requestId
+    * @dev A mock function to submit a value to be read without miners needed
+    * @param _queryId The tellorId to associate the value to
+    * @param _value the value for the queryId
     */
-    function submitValue(bytes32 _requestId, bytes calldata _value, uint256 _nonce) external {
-        require(_nonce ==  timestamps[_requestId].length, "nonce should be correct");
-        values[_requestId][block.timestamp] = _value;
-        timestamps[_requestId].push(block.timestamp);
-        emit NewValue(_requestId, block.timestamp, _value);
+    function submitValue(bytes32 _queryId, bytes calldata _value, uint256 _nonce, bytes memory _queryData) external {
+        require(_nonce == timestamps[_queryId].length, "nonce should be correct");
+        require(
+            _queryId == keccak256(_queryData) || uint256(_queryId) <= 100,
+            "id must be hash of bytes data"
+        );
+        values[_queryId][block.timestamp] = _value;
+        timestamps[_queryId].push(block.timestamp);
+        emit NewReport(_queryId, block.timestamp, _value, _nonce, _queryData, msg.sender);
     }
 
     /**
     * @dev A mock function to create a dispute
-    * @param _requestId The tellorId to be disputed
+    * @param _queryId The tellorId to be disputed
     * @param _timestamp the timestamp that indentifies for the value
     */
-    function disputeValue(bytes32 _requestId, uint256 _timestamp) external {
-        values[_requestId][_timestamp] = bytes("");
-        isDisputed[_requestId][_timestamp] = true;
-    }
-    
-    /**
-    * @dev Retreive value from oracle based on requestId/timestamp
-    * @param _requestId being requested
-    * @param _timestamp to retreive data/value from
-    * @return bytes value for requestId/timestamp submitted
-    */
-    function retrieveData(bytes32 _requestId, uint256 _timestamp) public view returns(bytes memory) {
-        return values[_requestId][_timestamp];
+    function beginDispute(bytes32 _queryId, uint256 _timestamp) external {
+        values[_queryId][_timestamp] = bytes("");
+        isDisputed[_queryId][_timestamp] = true;
     }
 
     /**
-    * @dev Gets if the mined value for the specified requestId/_timestamp is currently under dispute
-    * @param _requestId to looku p
-    * @param _timestamp is the timestamp to look up miners for
-    * @return bool true if requestId/timestamp is under dispute
+    * @dev Retrieve value from oracle based on queryId/timestamp
+    * @param _queryId being requested
+    * @param _timestamp to retreive data/value from
+    * @return bytes value for queryId/timestamp submitted
     */
-    function isInDispute(bytes32 _requestId, uint256 _timestamp) public view returns(bool){
-        return isDisputed[_requestId][_timestamp];
+    function retrieveData(bytes32 _queryId, uint256 _timestamp) public view returns(bytes memory) {
+        return values[_queryId][_timestamp];
+    }
+
+    /**
+    * @dev Retrieve value from oracle based on queryId/timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return uint256 value for queryId/timestamp submitted
+    */
+    function retrieveData(uint256 _requestId, uint256 _timestamp) public view returns(uint256) {
+      return _sliceUint(values[bytes32(_requestId)][_timestamp]);
+    }
+
+    /**
+    * @dev Gets if the mined value for the specified queryId/_timestamp is currently under dispute
+    * @param _queryId to looku p
+    * @param _timestamp is the timestamp to look up miners for
+    * @return bool true if queryId/timestamp is under dispute
+    */
+    function isInDispute(bytes32 _queryId, uint256 _timestamp) public view returns(bool){
+        return isDisputed[_queryId][_timestamp];
     }
 
     /**
     * @dev Counts the number of values that have been submited for the request
-    * @param _requestId the requestId to look up
-    * @return uint count of the number of values received for the requestId
+    * @param _requestId the queryId to look up
+    * @return uint256 count of the number of values received for the queryId
     */
-    function getNewValueCountbyRequestId(bytes32 _requestId) public view returns(uint) {
-        return timestamps[_requestId].length;
+    function getNewValueCountbyRequestId(uint256 _requestId) public view returns(uint256) {
+        return timestamps[bytes32(_requestId)].length;
+    }
+
+    /**
+    * @dev Counts the number of values that have been submited for the request
+    * @param _queryId the queryId to look up
+    * @return uint256 count of the number of values received for the queryId
+    */
+    function getNewValueCountbyQueryId(bytes32 _queryId) public view returns(uint256) {
+        return timestamps[_queryId].length;
     }
 
     /**
     * @dev Gets the timestamp for the value based on their index
-    * @param _requestId is the requestId to look up
+    * @param _requestId is the queryId to look up
     * @param _index is the value index to look up
-    * @return uint timestamp
+    * @return uint256 timestamp
     */
-    function getTimestampbyRequestIDandIndex(bytes32 _requestId, uint256 _index) public view returns(uint256) {
-        uint256 len = timestamps[_requestId].length;
-        if(len == 0 || len <= _index) return 0; 
-        return timestamps[_requestId][_index];
+    function getTimestampbyRequestIDandIndex(uint256 _requestId, uint256 _index) public view returns(uint256) {
+        uint256 len = timestamps[bytes32(_requestId)].length;
+        if(len == 0 || len <= _index) return 0;
+        return timestamps[bytes32(_requestId)][_index];
+    }
+
+    /**
+    * @dev Gets the timestamp for the value based on their index
+    * @param _queryId is the queryId to look up
+    * @param _index is the value index to look up
+    * @return uint256 timestamp
+    */
+    function getTimestampbyQueryIdandIndex(bytes32 _queryId, uint256 _index) public view returns(uint256) {
+        uint256 len = timestamps[_queryId].length;
+        if(len == 0 || len <= _index) return 0;
+        return timestamps[_queryId][_index];
     }
 
     /**
     * @dev Adds a tip to a given request Id.
-    * @param _requestId is the requestId to look up
+    * @param _queryId is the queryId to look up
     * @param _amount is the amount of tips
-    * @param _data is the extra bytes data needed to fulfill the request
+    * @param _queryData is the extra bytes data needed to fulfill the request
     */
-    function addTip(bytes32 _requestId, uint256 _amount, bytes memory _data) external {
+    function tipQuery(bytes32 _queryId, uint256 _amount, bytes memory _queryData) external {
+        require(
+            _queryId == keccak256(_queryData) || uint256(_queryId) <= 100,
+            "id must be hash of bytes data"
+        );
         _transfer(msg.sender, address(this), _amount);
-        emit TipAdded(msg.sender, _requestId, _amount, _data);
+        emit TipAdded(msg.sender, _queryId, _amount, _queryData);
+    }
+
+    /**
+     * @dev Utilized to help slice a bytes variable into a uint
+     * @param _b is the bytes variable to be sliced
+     * @return _x of the sliced uint256
+     */
+    function _sliceUint(bytes memory _b) public pure returns (uint256 _x) {
+        uint256 _number = 0;
+        for (uint256 _i = 0; _i < _b.length; _i++) {
+            _number = _number * 2**8;
+            _number = _number + uint8(_b[_i]);
+        }
+        return _number;
     }
 }

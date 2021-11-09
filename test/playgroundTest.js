@@ -1,4 +1,6 @@
 const { expect } = require("chai");
+const { ethers } = require("hardhat");
+const h = require("./helpers/helpers");
 
 const precision = BigInt(1e18);
 const REQUEST_ID_0 = ethers.utils.formatBytes32String("0");
@@ -10,125 +12,176 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 describe("TellorPlayground", function() {
 
-	let tellorPlayground;
+	let playground;
 	let owner, addr0, addr1, addr2;
 
 	beforeEach(async function () {
 		const TellorPlayground = await ethers.getContractFactory("TellorPlayground");
-		tellorPlayground = await TellorPlayground.deploy(TOKEN_NAME, TOKEN_SYMBOL);
+		playground = await TellorPlayground.deploy(TOKEN_NAME, TOKEN_SYMBOL);
 		[owner, addr1, addr2] = await ethers.getSigners();
-		await tellorPlayground.deployed();
+		await playground.deployed();
 	});
 
-	it("Test Constructor()", async function() {
-		expect(await tellorPlayground.name()).to.equal(TOKEN_NAME);
-		expect(await tellorPlayground.symbol()).to.equal(TOKEN_SYMBOL);
-		expect(await tellorPlayground.decimals()).to.equal(18);
+	it("constructor()", async function() {
+		expect(await playground.name()).to.equal(TOKEN_NAME);
+		expect(await playground.symbol()).to.equal(TOKEN_SYMBOL);
+		expect(await playground.decimals()).to.equal(18);
 	});
 
-	it("Test Faucet", async function() {
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(0);
-		await tellorPlayground.faucet(owner.address);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
-		expect(await tellorPlayground.totalSupply()).to.equal(FAUCET_AMOUNT);
-		await expect(tellorPlayground.faucet(ZERO_ADDRESS)).to.be.reverted;
+	it("faucet()", async function() {
+		expect(await playground.balanceOf(owner.address)).to.equal(0);
+		await playground.faucet(owner.address);
+		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
+		expect(await playground.totalSupply()).to.equal(FAUCET_AMOUNT);
+		await expect(playground.faucet(ZERO_ADDRESS)).to.be.reverted;
 	});
 
-	it("Test Name", async function() {
-		expect(await tellorPlayground.name()).to.equal(TOKEN_NAME);
+	it("name()", async function() {
+		expect(await playground.name()).to.equal(TOKEN_NAME);
 	});
 
-	it("Test Symbol", async function() {
-		expect(await tellorPlayground.symbol()).to.equal(TOKEN_SYMBOL);
+	it("symbol()", async function() {
+		expect(await playground.symbol()).to.equal(TOKEN_SYMBOL);
 	});
 
-	it("Test Decimals", async function() {
-		expect(await tellorPlayground.decimals()).to.equal(18);
+	it("decimals()", async function() {
+		expect(await playground.decimals()).to.equal(18);
 	});
 
-	it("Test Total Supply", async function() {
-		expect(await tellorPlayground.totalSupply()).to.equal(0);
-		await tellorPlayground.faucet(owner.address);
-		expect(await tellorPlayground.totalSupply()).to.equal(BigInt(1000) * precision);
+	it("totalSupply()", async function() {
+		expect(await playground.totalSupply()).to.equal(0);
+		await playground.faucet(owner.address);
+		expect(await playground.totalSupply()).to.equal(BigInt(1000) * precision);
 	});
 
-	it("Test Transfer", async function() {
-		await tellorPlayground.faucet(owner.address);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
-		expect(await tellorPlayground.balanceOf(addr1.address)).to.equal(0);
-		await tellorPlayground.transfer(addr1.address, BigInt(250) * precision);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(750) * precision);
-		expect(await tellorPlayground.balanceOf(addr1.address)).to.equal(BigInt(250) * precision);
-		await expect(tellorPlayground.transfer(addr1.address, BigInt(1000) * precision)).to.be.reverted;
-		await expect(tellorPlayground.transfer(ZERO_ADDRESS, 1)).to.be.reverted;
+	it("transfer()", async function() {
+		await playground.faucet(owner.address);
+		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
+		expect(await playground.balanceOf(addr1.address)).to.equal(0);
+		await playground.transfer(addr1.address, BigInt(250) * precision);
+		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(750) * precision);
+		expect(await playground.balanceOf(addr1.address)).to.equal(BigInt(250) * precision);
+		await expect(playground.transfer(addr1.address, BigInt(1000) * precision)).to.be.reverted;
+		await expect(playground.transfer(ZERO_ADDRESS, 1)).to.be.reverted;
 	});
 
-	it("Test Approve", async function() {
+	it("approve()", async function() {
 		let approvalAmount = BigInt(500) * precision;
-		await tellorPlayground.faucet(owner.address);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
-		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
-		await expect(tellorPlayground.connect(addr1).transferFrom(owner.address, addr2.addr2, approvalAmount)).to.be.reverted;
-		await tellorPlayground.approve(addr1.address, approvalAmount);
-		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(approvalAmount);
-		await tellorPlayground.connect(addr1).transferFrom(owner.address, addr2.address, approvalAmount);
-		expect(await tellorPlayground.balanceOf(addr2.address)).to.equal(approvalAmount);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT - approvalAmount);
-		expect(await tellorPlayground.allowance(owner.address, addr1.address)).to.equal(0);
-		await expect(tellorPlayground.approve(ZERO_ADDRESS, approvalAmount)).to.be.reverted;
+		await playground.faucet(owner.address);
+		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT);
+		expect(await playground.allowance(owner.address, addr1.address)).to.equal(0);
+		await expect(playground.connect(addr1).transferFrom(owner.address, addr2.addr2, approvalAmount)).to.be.reverted;
+		await playground.approve(addr1.address, approvalAmount);
+		expect(await playground.allowance(owner.address, addr1.address)).to.equal(approvalAmount);
+		await playground.connect(addr1).transferFrom(owner.address, addr2.address, approvalAmount);
+		expect(await playground.balanceOf(addr2.address)).to.equal(approvalAmount);
+		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT - approvalAmount);
+		expect(await playground.allowance(owner.address, addr1.address)).to.equal(0);
+		await expect(playground.approve(ZERO_ADDRESS, approvalAmount)).to.be.reverted;
 	});
 
-  it("Test Submit Value", async function() {
-    await tellorPlayground.submitValue(REQUEST_ID_0,ethers.utils.formatBytes32String("jjjj"),0);
-    let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
-    expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(ethers.utils.formatBytes32String("jjjj"));
+  it("submitValue()", async function() {
+		await h.expectThrow(playground.submitValue(h.uintTob32(500),150,0,'0xabcd')) // queryId must equal hash(queryData)
+		await h.expectThrow(playground.submitValue(h.uintTob32(1),150,1,'0x')) // nonce must be correct
+    await playground.submitValue(h.uintTob32(1),150,0,'0x');
+    timestamp = await playground.getTimestampbyRequestIDandIndex(h.uintTob32(1), 0);
+		expect(await playground["retrieveData(bytes32,uint256)"](h.uintTob32(1), timestamp) - 150).to.equal(0);
+		await playground.submitValue(h.hash("abracadabra"), h.bytes("houdini"), 0, h.bytes("abracadabra"))
+		timestamp = await playground.getTimestampbyRequestIDandIndex(h.hash("abracadabra"), 0);
+		expect(await playground["retrieveData(bytes32,uint256)"](h.hash("abracadabra"), timestamp)).to.equal(h.bytes("houdini"))
   });
 
-  it("Test Dispute Value", async function() {
-    await tellorPlayground.submitValue(REQUEST_ID_0,ethers.utils.formatBytes32String("500"),0);
-	await tellorPlayground.submitValue(REQUEST_ID_0,ethers.utils.formatBytes32String("501"),1);
-    let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
-	let timestamp01 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 1);
-    expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(ethers.utils.formatBytes32String("500"),0);
-	expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp01)).to.equal(ethers.utils.formatBytes32String("501"),0);
-    await tellorPlayground.disputeValue(REQUEST_ID_0, timestamp00);
-    expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal("0x");
-	expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp01)).to.equal(ethers.utils.formatBytes32String("501"),0);
-	expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp00)).to.equal(true);
-	expect(await tellorPlayground.isInDispute(REQUEST_ID_0, timestamp01)).to.equal(false);
-  });
+	it("beginDispute()", async function() {
+		await playground.submitValue(h.uintTob32(1), 150, 0, "0x")
+		blocky1 = await ethers.provider.getBlock()
+		await playground.submitValue(h.uintTob32(1), 160, 1, "0x")
+		blocky2 = await ethers.provider.getBlock()
+		await playground.beginDispute(h.uintTob32(1), blocky2.timestamp)
+		expect(await playground.values(h.uintTob32(1), blocky2.timestamp)).to.equal("0x")
+		expect(await playground.isDisputed(h.uintTob32(1), blocky2.timestamp)).to.equal(true)
+		expect(await playground.values(h.uintTob32(1), blocky1.timestamp)).to.equal(h.bytes(150))
+		expect(await playground.isDisputed(h.uintTob32(1), blocky1.timestamp)).to.equal(false)
+	})
 
-	it("Test Retrieve Data", async function() {
-		await tellorPlayground.submitValue(REQUEST_ID_0, ethers.utils.formatBytes32String("500"),0);
-		await tellorPlayground.submitValue(REQUEST_ID_0, ethers.utils.formatBytes32String("501"),1);
-    	let timestamp00 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0);
-		let timestamp01 = await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 1);
-    	expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp00)).to.equal(ethers.utils.formatBytes32String("500"));
-		expect(await tellorPlayground.retrieveData(REQUEST_ID_0, timestamp01)).to.equal(ethers.utils.formatBytes32String("501"));
-	});
+	it("retrieveData(bytes32,uint256)", async function() {
+    await playground.submitValue(h.uintTob32(1),150,0,'0x')
+		blocky = await h.getBlock()
+		expect(await playground["retrieveData(bytes32,uint256)"](h.uintTob32(1), blocky.timestamp) - 150).to.equal(0)
+		await playground.submitValue(h.hash("abracadabra"), h.bytes("houdini"), 0, h.bytes("abracadabra"))
+		blocky = await h.getBlock()
+		expect(await playground["retrieveData(bytes32,uint256)"](h.hash("abracadabra"), blocky.timestamp)).to.equal(h.bytes("houdini"))
+	})
 
-	it("Test Get New Value Count By Request Id", async function() {
-		expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_0)).to.equal(0);
-		expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_1)).to.equal(0);
-		await tellorPlayground.submitValue(REQUEST_ID_0, ethers.utils.formatBytes32String("500"),0);
-		await tellorPlayground.submitValue(REQUEST_ID_1, ethers.utils.formatBytes32String("500"),0);
-		expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_0)).to.equal(1);
-		expect(await tellorPlayground.getNewValueCountbyRequestId(REQUEST_ID_1)).to.equal(1);
-  	});
+	it("retrieveData(uint256,uint256)", async function() {
+		await playground.submitValue(h.uintTob32(1),150,0,'0x');
+		blocky = await h.getBlock()
+		expect(await playground["retrieveData(uint256,uint256)"](1, blocky.timestamp) - 150).to.equal(0)
+	})
 
-	it("Test Get Timestamp By Request Id and Index", async function() {
-		expect(await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0)).to.equal(0);
-		await tellorPlayground.submitValue(REQUEST_ID_0,ethers.utils.formatBytes32String("500"),0);
-		expect(1 * await tellorPlayground.getTimestampbyRequestIDandIndex(REQUEST_ID_0, 0)).to.be.greaterThan(0)
-	});
+	it("isInDispute()", async function() {
+		await playground.submitValue(h.uintTob32(1), 150, 0, "0x")
+		blocky1 = await ethers.provider.getBlock()
+		await playground.submitValue(h.uintTob32(1), 160, 1, "0x")
+		blocky2 = await ethers.provider.getBlock()
+		await playground.beginDispute(h.uintTob32(1), blocky2.timestamp)
+		expect(await playground.values(h.uintTob32(1), blocky2.timestamp)).to.equal("0x")
+		expect(await playground.isDisputed(h.uintTob32(1), blocky2.timestamp)).to.equal(true)
+		expect(await playground.values(h.uintTob32(1), blocky1.timestamp)).to.equal(h.bytes(150))
+		expect(await playground.isDisputed(h.uintTob32(1), blocky1.timestamp)).to.equal(false)
+	})
 
-	it("Test Add Tip", async function() {
-		expect(await tellorPlayground.balanceOf(tellorPlayground.address)).to.equal(0);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(0);
-		await tellorPlayground.faucet(owner.address);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(1000) * precision);
-		await (tellorPlayground.addTip(REQUEST_ID_0, BigInt(10) * precision, '0x'));
-		expect(await tellorPlayground.balanceOf(tellorPlayground.address)).to.equal(BigInt(10) * precision);
-		expect(await tellorPlayground.balanceOf(owner.address)).to.equal(BigInt(990) * precision);
+	it("getNewValueCountbyRequestId()", async function() {
+		expect(await playground.getNewValueCountbyRequestId(1)).to.equal(0)
+		expect(await playground.getNewValueCountbyRequestId(2)).to.equal(0)
+		await playground.submitValue(h.uintTob32(1),150,0,'0x')
+		await playground.submitValue(h.uintTob32(1),160,1,'0x')
+		await playground.submitValue(h.uintTob32(2),250,0,'0x')
+		expect(await playground.getNewValueCountbyRequestId(1)).to.equal(2)
+		expect(await playground.getNewValueCountbyRequestId(2)).to.equal(1)
+	})
+
+	it("getNewValueCountbyQueryId()", async function() {
+		expect(await playground.getNewValueCountbyQueryId(h.uintTob32(1))).to.equal(0)
+		expect(await playground.getNewValueCountbyQueryId(h.uintTob32(2))).to.equal(0)
+		await playground.submitValue(h.uintTob32(1),150,0,'0x')
+		await playground.submitValue(h.uintTob32(1),160,1,'0x')
+		await playground.submitValue(h.uintTob32(2),250,0,'0x')
+		expect(await playground.getNewValueCountbyQueryId(h.uintTob32(1))).to.equal(h.bytes(2))
+		expect(await playground.getNewValueCountbyRequestId(h.uintTob32(2))).to.equal(h.bytes(1))
+	})
+
+	it("getTimestampbyRequestIDandIndex()", async function() {
+		await playground.submitValue(h.uintTob32(1),150,0,'0x')
+		blocky = await h.getBlock()
+		expect(await playground.getTimestampbyRequestIDandIndex(1,0)).to.equal(blocky.timestamp)
+		await playground.submitValue(h.uintTob32(1),160,1,'0x')
+		blocky = await h.getBlock()
+		expect(await playground.getTimestampbyRequestIDandIndex(1,1)).to.equal(blocky.timestamp)
+		await playground.submitValue(h.hash("abracadabra"), h.bytes("houdini"), 0, h.bytes("abracadabra"))
+		blocky = await h.getBlock()
+		expect(await playground.getTimestampbyRequestIDandIndex(h.hash("abracadabra"),0)).to.equal(blocky.timestamp)
+	})
+
+	it("getTimestampbyQueryIdandIndex()", async function() {
+		await playground.submitValue(h.uintTob32(1),150,0,'0x')
+		blocky = await h.getBlock()
+		expect(await playground.getTimestampbyQueryIdandIndex(h.uintTob32(1),0)).to.equal(blocky.timestamp)
+		await playground.submitValue(h.uintTob32(1),160,1,'0x')
+		blocky = await h.getBlock()
+		expect(await playground.getTimestampbyQueryIdandIndex(h.uintTob32(1),1)).to.equal(blocky.timestamp)
+		await playground.submitValue(h.hash("abracadabra"), h.bytes("houdini"), 0, h.bytes("abracadabra"))
+		blocky = await h.getBlock()
+		expect(await playground.getTimestampbyQueryIdandIndex(h.hash("abracadabra"),0)).to.equal(blocky.timestamp)
+	})
+
+
+	it("tipQuery()", async function() {
+		expect(await playground.balanceOf(playground.address)).to.equal(0);
+		expect(await playground.balanceOf(owner.address)).to.equal(0);
+		await playground.faucet(owner.address);
+		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(1000) * precision);
+		await (playground.tipQuery(h.uintTob32(1), BigInt(10) * precision, '0x'));
+		expect(await playground.balanceOf(playground.address)).to.equal(BigInt(10) * precision);
+		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(990) * precision);
 	});
 });

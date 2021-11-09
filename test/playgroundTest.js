@@ -174,7 +174,6 @@ describe("TellorPlayground", function() {
 		expect(await playground.getTimestampbyQueryIdandIndex(h.hash("abracadabra"),0)).to.equal(blocky.timestamp)
 	})
 
-
 	it("tipQuery()", async function() {
 		expect(await playground.balanceOf(playground.address)).to.equal(0);
 		expect(await playground.balanceOf(owner.address)).to.equal(0);

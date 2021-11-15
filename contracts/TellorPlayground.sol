@@ -2,18 +2,11 @@
 pragma solidity 0.8.0;
 
 contract TellorPlayground {
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    // Events
     event Approval(
         address indexed owner,
         address indexed spender,
         uint256 value
-    );
-    event TipAdded(
-        address indexed _user,
-        bytes32 indexed _queryId,
-        uint256 _tip,
-        uint256 _totalTip,
-        bytes _queryData
     );
     event NewReport(
         bytes32 _queryId,
@@ -23,7 +16,16 @@ contract TellorPlayground {
         bytes _queryData,
         address _reporter
     );
+    event TipAdded(
+        address indexed _user,
+        bytes32 indexed _queryId,
+        uint256 _tip,
+        uint256 _totalTip,
+        bytes _queryData
+    );
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
+    // Storage
     mapping(bytes32 => mapping(uint256 => bytes)) public values; //queryId -> timestamp -> value
     mapping(bytes32 => mapping(uint256 => bool)) public isDisputed; //queryId -> timestamp -> value
     mapping(bytes32 => uint256[]) public timestamps;
@@ -35,6 +37,10 @@ contract TellorPlayground {
     string private _symbol;
     uint8 private _decimals;
 
+    // Functions
+    /**
+     * @dev Initializes playground parameters
+     */
     constructor() {
         _name = "TellorPlayground";
         _symbol = "TRBP";
@@ -42,95 +48,10 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Public function to mint tokens for the passed address
-     * @param _user The address which will own the tokens
-     *
-     */
-    function faucet(address _user) external {
-        _mint(_user, 1000 ether);
-    }
-
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() public view returns (string memory) {
-        return _name;
-    }
-
-    /**
-     * @dev Returns the symbol of the token.
-     */
-    function symbol() public view returns (string memory) {
-        return _symbol;
-    }
-
-    /**
-     * @dev Returns the number of decimals used to get its user representation.
-     * For example, if `decimals` equals `2`, a balance of `505` tokens should
-     * be displayed to a user as `5,05` (`505 / 10 ** 2`).
-     *
-     * Tokens usually opt for a value of 18, imitating the relationship between
-     * Ether and Wei. This is the value {ERC20} uses, unless {_setupDecimals} is
-     * called.
-     *
-     * NOTE: This information is only used for _display_ purposes: it in
-     * no way affects any of the arithmetic of the contract.
-     */
-    function decimals() public view returns (uint8) {
-        return _decimals;
-    }
-
-    /**
-     * @dev Returns the total supply of the token.
-     */
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
-
-    /**
-     * @dev Returns the balance of a given user.
-     */
-    function balanceOf(address _account) public view returns (uint256) {
-        return _balances[_account];
-    }
-
-    /**
-     * @dev Transfer tokens from user to another
-     * @param _recipient The destination address
-     * @param _amount The amount of tokens, including decimals, to transfer
-     * @return bool If the transfer succeeded
-     *
-     */
-    function transfer(address _recipient, uint256 _amount)
-        public
-        virtual
-        returns (bool)
-    {
-        _transfer(msg.sender, _recipient, _amount);
-        return true;
-    }
-
-    /**
-     * @dev Retruns the amount that an address is alowed to spend of behalf of other
-     * @param _owner The address which owns the tokens
-     * @param _spender The address that will use the tokens
-     * @return uint256 Indicating the amount of allowed tokens
-     *
-     */
-    function allowance(address _owner, address _spender)
-        public
-        view
-        virtual
-        returns (uint256)
-    {
-        return _allowances[_owner][_spender];
-    }
-
-    /**
-     * @dev Approves  amount that an address is alowed to spend of behalf of other
-     * @param _spender The address which user the tokens
+     * @dev Approves amount that an address is alowed to spend of behalf of another
+     * @param _spender The address which is allowed to spend the tokens
      * @param _amount The amount that msg.sender is allowing spender to use
-     * @return bool If the transaction succeeded
+     * @return bool Whether the transaction succeeded
      *
      */
     function approve(address _spender, uint256 _amount)
@@ -143,77 +64,21 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Transfer tokens from user to another
-     * @param _sender The address which owns the tokens
-     * @param _recipient The destination address
-     * @param _amount The amount of tokens, including decimals, to transfer
-     * @return bool If the transfer succeeded
-     *
+     * @dev A mock function to create a dispute
+     * @param _queryId The tellorId to be disputed
+     * @param _timestamp the timestamp of the value to be disputed
      */
-    function transferFrom(
-        address _sender,
-        address _recipient,
-        uint256 _amount
-    ) public virtual returns (bool) {
-        _transfer(_sender, _recipient, _amount);
-        _approve(
-            _sender,
-            msg.sender,
-            _allowances[_sender][msg.sender] - _amount
-        );
-        return true;
+    function beginDispute(bytes32 _queryId, uint256 _timestamp) external {
+        values[_queryId][_timestamp] = bytes("");
+        isDisputed[_queryId][_timestamp] = true;
     }
 
     /**
-     * @dev Internal function to perform token transfer
+     * @dev Public function to mint tokens to the given address
+     * @param _user The address which will receive the tokens
      */
-    function _transfer(
-        address _sender,
-        address _recipient,
-        uint256 _amount
-    ) internal virtual {
-        require(_sender != address(0), "ERC20: transfer from the zero address");
-        require(
-            _recipient != address(0),
-            "ERC20: transfer to the zero address"
-        );
-        _balances[_sender] -= _amount;
-        _balances[_recipient] += _amount;
-        emit Transfer(_sender, _recipient, _amount);
-    }
-
-    /**
-     * @dev Internal function to create new tokens for the user
-     */
-    function _mint(address _account, uint256 _amount) internal virtual {
-        require(_account != address(0), "ERC20: mint to the zero address");
-        _totalSupply += _amount;
-        _balances[_account] += _amount;
-        emit Transfer(address(0), _account, _amount);
-    }
-
-    /**
-     * @dev Internal function to burn tokens for the user
-     */
-    function _burn(address _account, uint256 _amount) internal virtual {
-        require(_account != address(0), "ERC20: burn from the zero address");
-        _balances[_account] -= _amount;
-        _totalSupply -= _amount;
-        emit Transfer(_account, address(0), _amount);
-    }
-
-    /**
-     * @dev Internal function to approve tokens for the user
-     */
-    function _approve(
-        address _owner,
-        address _spender,
-        uint256 _amount
-    ) internal virtual {
-        require(_owner != address(0), "ERC20: approve from the zero address");
-        require(_spender != address(0), "ERC20: approve to the zero address");
-        _allowances[_owner][_spender] = _amount;
-        emit Approval(_owner, _spender, _amount);
+    function faucet(address _user) external {
+        _mint(_user, 1000 ether);
     }
 
     /**
@@ -250,42 +115,91 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev A mock function to create a dispute
-     * @param _queryId The tellorId to be disputed
-     * @param _timestamp the timestamp of the value to be disputed
+     * @dev Adds a tip to a given query ID.
+     * @param _queryId is the queryId to look up
+     * @param _amount is the amount of tips
+     * @param _queryData is the extra bytes data needed to fulfill the request
      */
-    function beginDispute(bytes32 _queryId, uint256 _timestamp) external {
-        values[_queryId][_timestamp] = bytes("");
-        isDisputed[_queryId][_timestamp] = true;
+    function tipQuery(
+        bytes32 _queryId,
+        uint256 _amount,
+        bytes memory _queryData
+    ) external {
+        require(
+            _queryId == keccak256(_queryData) || uint256(_queryId) <= 100,
+            "id must be hash of bytes data"
+        );
+        _transfer(msg.sender, address(this), _amount);
+        emit TipAdded(msg.sender, _queryId, _amount, _amount, _queryData);
     }
 
     /**
-     * @dev Retrieves bytes value from oracle based on queryId/timestamp
-     * @param _queryId being requested
-     * @param _timestamp to retrieve data/value from
-     * @return bytes value for queryId/timestamp submitted
+     * @dev Transfer tokens from one user to another
+     * @param _recipient The destination address
+     * @param _amount The amount of tokens, including decimals, to transfer
+     * @return bool If the transfer succeeded
      */
-    function retrieveData(bytes32 _queryId, uint256 _timestamp)
+    function transfer(address _recipient, uint256 _amount)
         public
-        view
-        returns (bytes memory)
-    {
-        return values[_queryId][_timestamp];
-    }
-
-
-    /**
-     * @dev Determines whether a value with a given queryId/_timestamp is currently under dispute
-     * @param _queryId is the ID of the specific data feed
-     * @param _timestamp is the timestamp of the value
-     * @return bool true if queryId/timestamp is under dispute
-     */
-    function isInDispute(bytes32 _queryId, uint256 _timestamp)
-        public
-        view
+        virtual
         returns (bool)
     {
-        return isDisputed[_queryId][_timestamp];
+        _transfer(msg.sender, _recipient, _amount);
+        return true;
+    }
+
+    /**
+     * @dev Transfer tokens from user to another
+     * @param _sender The address which owns the tokens
+     * @param _recipient The destination address
+     * @param _amount The quantity of tokens to transfer
+     * @return bool Whether the transfer succeeded
+     */
+    function transferFrom(
+        address _sender,
+        address _recipient,
+        uint256 _amount
+    ) public virtual returns (bool) {
+        _transfer(_sender, _recipient, _amount);
+        _approve(
+            _sender,
+            msg.sender,
+            _allowances[_sender][msg.sender] - _amount
+        );
+        return true;
+    }
+
+    // Getters
+    /**
+     * @dev Returns the amount that an address is alowed to spend of behalf of another
+     * @param _owner The address which owns the tokens
+     * @param _spender The address that will use the tokens
+     * @return uint256 The amount of allowed tokens
+     */
+    function allowance(address _owner, address _spender)
+        public
+        view
+        virtual
+        returns (uint256)
+    {
+        return _allowances[_owner][_spender];
+    }
+
+    /**
+     * @dev Returns the balance of a given user.
+     * @param _account user address
+     * @return uint256 user's token balance
+     */
+    function balanceOf(address _account) public view returns (uint256) {
+        return _balances[_account];
+    }
+
+    /**
+     * @dev Returns the number of decimals used to get its user representation.
+     * @return uint8 the number of decimals; used only for display purposes
+     */
+    function decimals() public view returns (uint8) {
+        return _decimals;
     }
 
     /**
@@ -300,7 +214,6 @@ contract TellorPlayground {
     {
         return timestamps[_queryId].length;
     }
-
 
     /**
      * @dev Gets the timestamp for the value based on their index
@@ -319,21 +232,103 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Adds a tip to a given query ID.
-     * @param _queryId is the queryId to look up
-     * @param _amount is the amount of tips
-     * @param _queryData is the extra bytes data needed to fulfill the request
+     * @dev Returns the name of the token.
+     * @return string name of the token
      */
-    function tipQuery(
-        bytes32 _queryId,
-        uint256 _amount,
-        bytes memory _queryData
-    ) external {
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    /**
+     * @dev Retrieves value from oracle based on queryId/timestamp
+     * @param _queryId being requested
+     * @param _timestamp to retrieve data/value from
+     * @return bytes value for queryId/timestamp submitted
+     */
+    function retrieveData(bytes32 _queryId, uint256 _timestamp)
+        public
+        view
+        returns (bytes memory)
+    {
+        return values[_queryId][_timestamp];
+    }
+
+    /**
+     * @dev Returns the symbol of the token.
+     * @return string symbol of the token
+     */
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
+    /**
+     * @dev Returns the total supply of the token.
+     * @return uint256 total supply of token
+     */
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    // Internal functions
+    /**
+     * @dev Internal function to approve tokens for the user
+     * @param _owner The owner of the tokens
+     * @param _spender The address which is allowed to spend the tokens
+     * @param _amount The amount that msg.sender is allowing spender to use
+     */
+    function _approve(
+        address _owner,
+        address _spender,
+        uint256 _amount
+    ) internal virtual {
+        require(_owner != address(0), "ERC20: approve from the zero address");
+        require(_spender != address(0), "ERC20: approve to the zero address");
+        _allowances[_owner][_spender] = _amount;
+        emit Approval(_owner, _spender, _amount);
+    }
+
+    /**
+     * @dev Internal function to burn tokens for the user
+     * @param _account The address whose tokens to burn
+     * @param _amount The quantity of tokens to burn
+     */
+    function _burn(address _account, uint256 _amount) internal virtual {
+        require(_account != address(0), "ERC20: burn from the zero address");
+        _balances[_account] -= _amount;
+        _totalSupply -= _amount;
+        emit Transfer(_account, address(0), _amount);
+    }
+
+    /**
+     * @dev Internal function to create new tokens for the user
+     * @param _account The address which receives minted tokens
+     * @param _amount The quantity of tokens to min
+     */
+    function _mint(address _account, uint256 _amount) internal virtual {
+        require(_account != address(0), "ERC20: mint to the zero address");
+        _totalSupply += _amount;
+        _balances[_account] += _amount;
+        emit Transfer(address(0), _account, _amount);
+    }
+
+    /**
+     * @dev Internal function to perform token transfer
+     * @param _sender The address which owns the tokens
+     * @param _recipient The destination address
+     * @param _amount The quantity of tokens to transfer
+     */
+    function _transfer(
+        address _sender,
+        address _recipient,
+        uint256 _amount
+    ) internal virtual {
+        require(_sender != address(0), "ERC20: transfer from the zero address");
         require(
-            _queryId == keccak256(_queryData) || uint256(_queryId) <= 100,
-            "id must be hash of bytes data"
+            _recipient != address(0),
+            "ERC20: transfer to the zero address"
         );
-        _transfer(msg.sender, address(this), _amount);
-        emit TipAdded(msg.sender, _queryId, _amount, _amount, _queryData);
+        _balances[_sender] -= _amount;
+        _balances[_recipient] += _amount;
+        emit Transfer(_sender, _recipient, _amount);
     }
 }

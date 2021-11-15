@@ -9,10 +9,11 @@ contract TellorPlayground {
         uint256 value
     );
     event TipAdded(
-        address indexed _sender,
+        address indexed _user,
         bytes32 indexed _queryId,
         uint256 _tip,
-        bytes _data
+        uint256 _totalTip,
+        bytes _queryData
     );
     event NewReport(
         bytes32 _queryId,
@@ -34,9 +35,9 @@ contract TellorPlayground {
     string private _symbol;
     uint8 private _decimals;
 
-    constructor(string memory _iName, string memory _iSymbol) {
-        _name = _iName;
-        _symbol = _iSymbol;
+    constructor() {
+        _name = "TellorPlayground";
+        _symbol = "TRBP";
         _decimals = 18;
     }
 
@@ -216,9 +217,11 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev A mock function to submit a value to be read without miners needed
-     * @param _queryId The tellorId to associate the value to
+     * @dev A mock function to submit a value to be read without reporter staking needed
+     * @param _queryId the ID to associate the value to
      * @param _value the value for the queryId
+     * @param _nonce the current value count for the query id
+     * @param _queryData the data used by reporters to fulfill the data query
      */
     function submitValue(
         bytes32 _queryId,
@@ -249,7 +252,7 @@ contract TellorPlayground {
     /**
      * @dev A mock function to create a dispute
      * @param _queryId The tellorId to be disputed
-     * @param _timestamp the timestamp that indentifies for the value
+     * @param _timestamp the timestamp of the value to be disputed
      */
     function beginDispute(bytes32 _queryId, uint256 _timestamp) external {
         values[_queryId][_timestamp] = bytes("");
@@ -257,9 +260,9 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Retrieve value from oracle based on queryId/timestamp
+     * @dev Retrieves bytes value from oracle based on queryId/timestamp
      * @param _queryId being requested
-     * @param _timestamp to retreive data/value from
+     * @param _timestamp to retrieve data/value from
      * @return bytes value for queryId/timestamp submitted
      */
     function retrieveData(bytes32 _queryId, uint256 _timestamp)
@@ -270,24 +273,11 @@ contract TellorPlayground {
         return values[_queryId][_timestamp];
     }
 
-    /**
-     * @dev Retrieve value from oracle based on queryId/timestamp
-     * @param _requestId being requested
-     * @param _timestamp to retreive data/value from
-     * @return uint256 value for queryId/timestamp submitted
-     */
-    function retrieveData(uint256 _requestId, uint256 _timestamp)
-        public
-        view
-        returns (uint256)
-    {
-        return _sliceUint(values[bytes32(_requestId)][_timestamp]);
-    }
 
     /**
-     * @dev Gets if the mined value for the specified queryId/_timestamp is currently under dispute
-     * @param _queryId to looku p
-     * @param _timestamp is the timestamp to look up miners for
+     * @dev Determines whether a value with a given queryId/_timestamp is currently under dispute
+     * @param _queryId is the ID of the specific data feed
+     * @param _timestamp is the timestamp of the value
      * @return bool true if queryId/timestamp is under dispute
      */
     function isInDispute(bytes32 _queryId, uint256 _timestamp)
@@ -299,21 +289,8 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Counts the number of values that have been submited for the request
-     * @param _requestId the queryId to look up
-     * @return uint256 count of the number of values received for the queryId
-     */
-    function getNewValueCountbyRequestId(uint256 _requestId)
-        public
-        view
-        returns (uint256)
-    {
-        return timestamps[bytes32(_requestId)].length;
-    }
-
-    /**
-     * @dev Counts the number of values that have been submited for the request
-     * @param _queryId the queryId to look up
+     * @dev Counts the number of values that have been submitted for a given ID
+     * @param _queryId the ID to look up
      * @return uint256 count of the number of values received for the queryId
      */
     function getNewValueCountbyQueryId(bytes32 _queryId)
@@ -324,21 +301,6 @@ contract TellorPlayground {
         return timestamps[_queryId].length;
     }
 
-    /**
-     * @dev Gets the timestamp for the value based on their index
-     * @param _requestId is the queryId to look up
-     * @param _index is the value index to look up
-     * @return uint256 timestamp
-     */
-    function getTimestampbyRequestIDandIndex(uint256 _requestId, uint256 _index)
-        public
-        view
-        returns (uint256)
-    {
-        uint256 len = timestamps[bytes32(_requestId)].length;
-        if (len == 0 || len <= _index) return 0;
-        return timestamps[bytes32(_requestId)][_index];
-    }
 
     /**
      * @dev Gets the timestamp for the value based on their index
@@ -357,7 +319,7 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Adds a tip to a given request Id.
+     * @dev Adds a tip to a given query ID.
      * @param _queryId is the queryId to look up
      * @param _amount is the amount of tips
      * @param _queryData is the extra bytes data needed to fulfill the request
@@ -372,20 +334,6 @@ contract TellorPlayground {
             "id must be hash of bytes data"
         );
         _transfer(msg.sender, address(this), _amount);
-        emit TipAdded(msg.sender, _queryId, _amount, _queryData);
-    }
-
-    /**
-     * @dev Utilized to help slice a bytes variable into a uint
-     * @param _b is the bytes variable to be sliced
-     * @return _x of the sliced uint256
-     */
-    function _sliceUint(bytes memory _b) public pure returns (uint256 _x) {
-        uint256 _number = 0;
-        for (uint256 _i = 0; _i < _b.length; _i++) {
-            _number = _number * 2**8;
-            _number = _number + uint8(_b[_i]);
-        }
-        return _number;
+        emit TipAdded(msg.sender, _queryId, _amount, _amount, _queryData);
     }
 }

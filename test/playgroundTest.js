@@ -3,8 +3,6 @@ const { ethers } = require("hardhat");
 const h = require("./helpers/helpers");
 
 const precision = BigInt(1e18);
-// const REQUEST_ID_0 = ethers.utils.formatBytes32String("0");
-// const REQUEST_ID_1 = ethers.utils.formatBytes32String("1");
 const FAUCET_AMOUNT = BigInt(1000) * precision;
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
@@ -63,6 +61,18 @@ describe("TellorPlayground", function() {
 		await playground.connect(addr1).transfer(addr2.address, BigInt(100)*precision)
 		expect(await playground.balanceOf(addr1.address)).to.equal(FAUCET_AMOUNT - BigInt(100)*precision)
 		expect(await playground.balanceOf(addr2.address)).to.equal(BigInt(100)*precision)
+	})
+
+	it("getCurrentReward()", async function() {
+		await playground.faucet(playground.address)
+		await playground.faucet(addr1.address)
+		await playground.connect(addr1).tipQuery(h.uintTob32(1), BigInt(10) * precision, '0x');
+		await playground.connect(addr1).submitValue(h.uintTob32(2),150,0,'0x')
+		blocky = await h.getBlock()
+		await h.advanceTime(60*10)
+		currentReward = await playground.getCurrentReward(h.uintTob32(1))
+		expect(currentReward[0]).to.equal(BigInt(5)*precision) // tip amount should be correct
+		expect(currentReward[1]).to.equal(BigInt(1)*precision) // time based reward amount should be correct
 	})
 
 	it("name()", async function() {
@@ -142,7 +152,7 @@ describe("TellorPlayground", function() {
 		await playground.faucet(owner.address);
 		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(1000) * precision);
 		await (playground.tipQuery(h.uintTob32(1), BigInt(10) * precision, '0x'));
-		expect(await playground.balanceOf(playground.address)).to.equal(BigInt(10) * precision);
+		expect(await playground.balanceOf(playground.address)).to.equal(BigInt(5) * precision);
 		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(990) * precision);
 	});
 });

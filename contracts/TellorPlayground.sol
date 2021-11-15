@@ -12,6 +12,7 @@ contract TellorPlayground {
         bytes32 _queryId,
         uint256 _time,
         bytes _value,
+        uint256 _reward,
         uint256 _nonce,
         bytes _queryData,
         address _reporter
@@ -26,12 +27,16 @@ contract TellorPlayground {
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     // Storage
-    mapping(bytes32 => mapping(uint256 => bytes)) public values; //queryId -> timestamp -> value
     mapping(bytes32 => mapping(uint256 => bool)) public isDisputed; //queryId -> timestamp -> value
     mapping(bytes32 => uint256[]) public timestamps;
-    mapping(address => uint256) private _balances;
+    mapping(bytes32 => uint256) public tips; // mapping of data IDs to the amount of TRB they are tipped
+    mapping(bytes32 => mapping(uint256 => bytes)) public values; //queryId -> timestamp -> value
     mapping(address => mapping(address => uint256)) private _allowances;
+    mapping(address => uint256) private _balances;
 
+    uint256 public timeOfLastNewValue = block.timestamp; // time of the last new value, originally set to the block timestamp
+    uint256 public timeBasedReward = 5e17; // time based reward for a reporter for successfully submitting a value
+    uint256 public tipsInContract; // number of tips within the contract
     uint256 private _totalSupply;
     string private _name;
     string private _symbol;
@@ -104,10 +109,19 @@ contract TellorPlayground {
         );
         values[_queryId][block.timestamp] = _value;
         timestamps[_queryId].push(block.timestamp);
+        // Send tips + timeBasedReward to reporter and reset tips for ID
+        (uint256 _tip, uint256 _reward) = getCurrentReward(_queryId);
+        if (_reward + _tip > 0) {
+            transfer(msg.sender, _reward + _tip);
+        }
+        timeOfLastNewValue = block.timestamp;
+        tipsInContract -= _tip;
+        tips[_queryId] = 0;
         emit NewReport(
             _queryId,
             block.timestamp,
             _value,
+            _tip + _reward,
             _nonce,
             _queryData,
             msg.sender
@@ -130,7 +144,11 @@ contract TellorPlayground {
             "id must be hash of bytes data"
         );
         _transfer(msg.sender, address(this), _amount);
-        emit TipAdded(msg.sender, _queryId, _amount, _amount, _queryData);
+        _amount = _amount/2;
+        _burn(address(this), _amount);
+        tipsInContract += _amount;
+        tips[_queryId] += _amount;
+        emit TipAdded(msg.sender, _queryId, _amount, tips[_queryId], _queryData);
     }
 
     /**
@@ -200,6 +218,25 @@ contract TellorPlayground {
      */
     function decimals() public view returns (uint8) {
         return _decimals;
+    }
+
+    /**
+     * @dev Calculates the current reward for a reporter given tips and time based reward
+     * @param _queryId is ID of the specific data feed
+     * @return uint256 tip amount for given query ID
+     * @return uint256 time based reward
+     */
+    function getCurrentReward(bytes32 _queryId)
+        public
+        view
+        returns (uint256, uint256)
+    {
+        uint256 _timeDiff = block.timestamp - timeOfLastNewValue;
+        uint256 _reward = (_timeDiff * timeBasedReward) / 300; //.5 TRB per 5 minutes (should we make this upgradeable)
+        if (balanceOf(address(this)) < _reward + tipsInContract) {
+            _reward = balanceOf(address(this)) - tipsInContract;
+        }
+        return (tips[_queryId], _reward);
     }
 
     /**

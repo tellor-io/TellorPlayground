@@ -22,6 +22,7 @@ describe("TellorPlayground", function() {
 		expect(await playground.name()).to.equal("TellorPlayground");
 		expect(await playground.symbol()).to.equal("TRBP");
 		expect(await playground.decimals()).to.equal(18);
+		expect(await playground.addresses(h.hash("_GOVERNANCE_CONTRACT"))).to.equal(playground.address)
 	});
 
 	it("approve()", async function() {
@@ -144,6 +145,25 @@ describe("TellorPlayground", function() {
 		await playground.submitValue(h.hash("abracadabra"), h.bytes("houdini"), 0, h.bytes("abracadabra"))
 		blocky = await h.getBlock()
 		expect(await playground.getTimestampbyQueryIdandIndex(h.hash("abracadabra"),0)).to.equal(blocky.timestamp)
+	})
+
+	it("getVoteRounds()", async function() {
+		await playground.connect(addr1).submitValue(h.uintTob32(1),150,0,'0x')
+    blocky1 = await h.getBlock()
+    await playground.connect(addr1).submitValue(h.uintTob32(1),160,1,'0x')
+    blocky2 = await h.getBlock()
+		let hash = ethers.utils.solidityKeccak256(['bytes32','uint256'], [h.uintTob32(1),blocky1.timestamp])
+		voteRounds = await playground.getVoteRounds(hash)
+		expect(voteRounds.length).to.equal(0)
+		await playground.beginDispute(h.uintTob32(1), blocky1.timestamp)
+		voteRounds = await playground.getVoteRounds(hash)
+		expect(voteRounds.length).to.equal(1)
+		expect(voteRounds[0]).to.equal(1)
+		await playground.beginDispute(h.uintTob32(1), blocky1.timestamp)
+		voteRounds = await playground.getVoteRounds(hash)
+		expect(voteRounds.length).to.equal(2)
+		expect(voteRounds[0]).to.equal(1)
+		expect(voteRounds[1]).to.equal(2)
 	})
 
 	it("tipQuery()", async function() {

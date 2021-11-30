@@ -14,19 +14,19 @@
 # TL:DR
 Tellor Playground is aims to help anyone building on Tellor to quickly test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at these addresses:
 
-Rinkeby: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://rinkeby.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
+Rinkeby: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://rinkeby.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
 
-Kovan: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://kovan.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
+Kovan: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://kovan.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
 
-Ropsten: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://ropsten.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
+Ropsten: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://ropsten.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
 
-Goerli: [`0x20374E579832859f180536A69093A126Db1c8aE9`](https://goerli.etherscan.io/address/0x20374E579832859f180536A69093A126Db1c8aE9#code)
+Goerli: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://goerli.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
 
-BSC Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://testnet.bscscan.com/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24#code)
+BSC Testnet: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://testnet.bscscan.com/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
 
-Polygon Mumbai Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://explorer-mumbai.maticvigil.com/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24/contracts)
+Polygon Mumbai Testnet: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://explorer-mumbai.maticvigil.com/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7/contracts)
 
-Arbitrum Testnet: [`0xbc2f9E092ac5CED686440E5062D11D6543202B24`](https://explorer.arbitrum.io/#/address/0xbc2f9E092ac5CED686440E5062D11D6543202B24)
+Arbitrum Testnet: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://rinkeby-explorer.arbitrum.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7)
 
 ## Why use Tellor Playground
 The [TellorX](https://github.com/tellor-io/tellorX) repository is a large project that holds all the on-chain logic of the system, but a lot of the code there is aimed at dealing with stakers, reporters, and disputes, among other stuff, which most projects that want to request and read tellor values don't really need to worry about.
@@ -36,7 +36,7 @@ The Playground is a simplified (and not a real oracle) Tellor, containing only t
 ### Why not use the real Tellor
 There are a few reasons not to use even the testnet version of the real system, the first one being that it is identical to the mainnet version, where there are only 50 datapoints available for reading. You can easily get the value of USD or BTC, but if your project needs to read a value from an exotic token, it might not be available.
 
-To include a value in the Rinkeby version, it would first need to be created via a [Tellor Improvement Proposal (TIPs)](https://github.com/tellor-io/TIPs), which will be analyzed by the community and if there's no opposition it'll proceed to implementation and then it'll be available on testnet. If you're testing an idea or building a hackathon project, it might be overkill to go through all of that and it's far easier to make use of Tellor Playground.  
+To include a value in the Rinkeby version, it would first need to be added to the reporter software client. Or a developer could report the value themselves, but they would have to acquire 100 Rinkeby test TRB, stake it, and then they would only be able to submit a value once every 12 hours. If you're testing an idea or building a hackathon project, it might be overkill to go through all of that and it's far easier to make use of Tellor Playground.  
 
 ## How to use
 
@@ -51,8 +51,8 @@ contract BtcPriceContract is UsingTellor {
 
   //This contract now has access to all functions in UsingTellor
 
-  uint256 btcPrice;
-  uint256 btcRequestId = 2;
+  bytes btcPrice;
+  bytes32 btcRequestId = 0x0000000000000000000000000000000000000000000000000000000000000002;
 
   constructor(address payable _tellorAddress) UsingTellor(_tellorAddress) public {}
 

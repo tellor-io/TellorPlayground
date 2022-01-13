@@ -12,22 +12,20 @@ require("dotenv").config();
 
 //npx hardhat run scripts/deploy.js --network rinkeby
 
-async function deployPlayground(_name, _symbol, _network, _pk, _nodeURL) {
+async function deployPlayground(_network, _pk, _nodeURL) {
 
     console.log("deploy tellor playground")
-    var name = _name
-    var symbol = _symbol
     var net = _network
 
     await run("compile")
 
     //Connect to the network
     let privateKey = _pk;
-    var provider = new ethers.providers.JsonRpcProvider(_nodeURL) 
+    var provider = new ethers.providers.JsonRpcProvider(_nodeURL)
     let wallet = new ethers.Wallet(privateKey, provider);
     const Tellor = await ethers.getContractFactory("contracts/TellorPlayground.sol:TellorPlayground", wallet);
     var tellorWithSigner = await Tellor.connect(wallet);
-    const tellor= await tellorWithSigner.deploy(name, symbol);
+    const tellor= await tellorWithSigner.deploy();
     console.log("Tellor deployed to:", tellor.address);
     await tellor.deployed();
 
@@ -50,8 +48,8 @@ async function deployPlayground(_name, _symbol, _network, _pk, _nodeURL) {
         console.log("Tellor contract deployed to:", "https://explorer-mumbai.maticvigil.com/" + tellor.address);
         console.log("    transaction hash:", "https://explorer-mumbai.maticvigil.com/tx/" + tellor.deployTransaction.hash);
     } else if (net == "arbitrum_testnet"){
-        console.log("tellor contract deployed to:","https://explorer.arbitrum.io/#/ "+ tellor.address)
-        console.log("    transaction hash:", "https://explorer.arbitrum.io/#/tx/" + tellor.deployTransaction.hash);
+        console.log("tellor contract deployed to:","https://rinkeby-explorer.arbitrum.io/#/"+ tellor.address)
+        console.log("    transaction hash:", "https://rinkeby-explorer.arbitrum.io/#/tx/" + tellor.deployTransaction.hash);
     }  else if (net == "xdaiSokol"){ //https://blockscout.com/poa/xdai/address/
       console.log("tellor contract deployed to:","https://blockscout.com/poa/sokol/address/"+ tellor.address)
       console.log("    transaction hash:", "https://blockscout.com/poa/sokol/tx/" + tellor.deployTransaction.hash);
@@ -71,8 +69,7 @@ async function deployPlayground(_name, _symbol, _network, _pk, _nodeURL) {
     console.log('submitting contract for verification...');
 
     await run("verify:verify", {
-      address: tellor.address,
-      constructorArguments: [name, symbol]
+      address: tellor.address
     },
     )
 
@@ -80,7 +77,7 @@ async function deployPlayground(_name, _symbol, _network, _pk, _nodeURL) {
 
   };
 
-  deployPlayground("Tellor", "TRB", "rinkeby", process.env.TESTNET_PK, process.env.NODE_URL_RINKEBY)
+  deployPlayground("polygon_testnet", process.env.TESTNET_PK, process.env.NODE_URL_MUMBAI)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

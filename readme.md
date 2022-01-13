@@ -14,9 +14,9 @@
 # TL:DR
 Tellor Playground is aims to help anyone building on Tellor to quickly test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at these addresses:
 
-Rinkeby: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://rinkeby.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
+Rinkeby: [`0xF281e2De3bB71dE348040b10B420615104359c10`](https://rinkeby.etherscan.io/address/0xF281e2De3bB71dE348040b10B420615104359c10#code)
 
-Kovan: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://kovan.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
+Kovan: [`0x320f09D9f92Cfa0e9C272b179e530634D873aeFa`](https://kovan.etherscan.io/address/0x320f09D9f92Cfa0e9C272b179e530634D873aeFa#code)
 
 Ropsten: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://ropsten.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
 

@@ -77,7 +77,7 @@ async function deployPlayground(_network, _pk, _nodeURL) {
 
   };
 
-  deployPlayground("polygon_testnet", process.env.TESTNET_PK, process.env.NODE_URL_MUMBAI)
+  deployPlayground("rinkeby", process.env.TESTNET_PK, process.env.NODE_URL_RINKEBY)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

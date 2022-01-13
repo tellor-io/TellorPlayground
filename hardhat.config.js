@@ -37,12 +37,12 @@ module.exports = {
       },
       allowUnlimitedContractSize: true
     },
-    // rinkeby: {
-    //      url: `${process.env.NODE_URL_RINKEBY}`,
-    //      seeds: [process.env.TESTNET_PK],
-    //      gas: 10000000,
-    //      gasPrice: 40000000000
-    // }//,
+    rinkeby: {
+         url: `${process.env.NODE_URL_RINKEBY}`,
+         seeds: [process.env.TESTNET_PK],
+         gas: 10000000,
+         gasPrice: 40000000000
+    }//,
       // mainnet: {
       //   url: `${process.env.NODE_URL_MAINNET}`,
       //   accounts: [process.env.PRIVATE_KEY],
@@ -73,12 +73,12 @@ module.exports = {
       //   gas: 10000000 ,
       //   gasPrice: 50000000000
       // }
-      polygon_testnet: {
-        url: `${process.env.NODE_URL_MUMBAI}`,
-        accounts: [process.env.TESTNET_PK],
-        gas: 10000000 ,
-        gasPrice: 50000000000
-      }
+      // polygon_testnet: {
+      //   url: `${process.env.NODE_URL_MUMBAI}`,
+      //   accounts: [process.env.TESTNET_PK],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
       // arbitrum_testnet: {
       //   url: `${process.env.NODE_URL_ARBITRUM_TESTNET}`,
       //   accounts: [process.env.TESTNET_PK],

@@ -36,16 +36,52 @@ module.exports = {
         url: "https://eth-mainnet.alchemyapi.io/v2/7dW8KCqWwKa1vdaitq-SxmKfxWZ4yPG6"
       },
       allowUnlimitedContractSize: true
+    },
+    rinkeby: {
+         url: `${process.env.NODE_URL_RINKEBY}`,
+         seeds: [process.env.TESTNET_PK],
+         gas: 10000000,
+         gasPrice: 40000000000
     }//,
-    // rinkeby: {
-    //      url: `${process.env.NODE_URL_RINKEBY}`,
-    //      seeds: [process.env.PRIVATE_KEY],
-    //      gas: 10000000,
-    //      gasPrice: 40000000000
-    // }//,
       // mainnet: {
       //   url: `${process.env.NODE_URL_MAINNET}`,
       //   accounts: [process.env.PRIVATE_KEY],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
+      // ropsten: {
+      //   url: `${process.env.NODE_URL_ROPSTEN}`,
+      //   accounts: [process.env.TESTNET_PK],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
+      // kovan: {
+      //   url: `${process.env.NODE_URL_KOVAN}`,
+      //   accounts: [process.env.TESTNET_PK],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
+      // goerli: {
+      //   url: `${process.env.NODE_URL_GOERLI}`,
+      //   accounts: [process.env.TESTNET_PK],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
+      // bsc_testnet: {
+      //   url: `${process.env.NODE_URL_BSC_TESTNET}`,
+      //   accounts: [process.env.TESTNET_PK],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
+      // polygon_testnet: {
+      //   url: `${process.env.NODE_URL_MUMBAI}`,
+      //   accounts: [process.env.TESTNET_PK],
+      //   gas: 10000000 ,
+      //   gasPrice: 50000000000
+      // }
+      // arbitrum_testnet: {
+      //   url: `${process.env.NODE_URL_ARBITRUM_TESTNET}`,
+      //   accounts: [process.env.TESTNET_PK],
       //   gas: 10000000 ,
       //   gasPrice: 50000000000
       // }

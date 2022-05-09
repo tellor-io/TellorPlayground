@@ -14,7 +14,7 @@ describe("TellorPlayground", function() {
 	beforeEach(async function () {
 		const TellorPlayground = await ethers.getContractFactory("TellorPlayground");
 		playground = await TellorPlayground.deploy();
-		[owner, addr1, addr2] = await ethers.getSigners();
+		[owner, addr0, addr1, addr2] = await ethers.getSigners();
 		await playground.deployed();
 	});
 
@@ -62,18 +62,6 @@ describe("TellorPlayground", function() {
 		await playground.connect(addr1).transfer(addr2.address, BigInt(100)*precision)
 		expect(await playground.balanceOf(addr1.address)).to.equal(FAUCET_AMOUNT - BigInt(100)*precision)
 		expect(await playground.balanceOf(addr2.address)).to.equal(BigInt(100)*precision)
-	})
-
-	it("getCurrentReward()", async function() {
-		await playground.faucet(playground.address)
-		await playground.faucet(addr1.address)
-		await playground.connect(addr1).tipQuery(h.uintTob32(1), BigInt(10) * precision, '0x');
-		await playground.connect(addr1).submitValue(h.uintTob32(2),150,0,'0x')
-		blocky = await h.getBlock()
-		await h.advanceTime(60*10)
-		currentReward = await playground.getCurrentReward(h.uintTob32(1))
-		expect(currentReward[0]).to.equal(BigInt(5)*precision) // tip amount should be correct
-		expect(currentReward[1]).to.equal(BigInt(1)*precision) // time based reward amount should be correct
 	})
 
 	it("name()", async function() {

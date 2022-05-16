@@ -417,6 +417,14 @@ contract TellorPlayground {
     }
 
     /**
+     * @dev Returns the governance address of the contract
+     * @return address (this address)
+     */
+    function governance() external view returns(address){
+        return address(this);
+    }
+    
+    /**
      * @dev Returns the name of the token.
      * @return string name of the token
      */

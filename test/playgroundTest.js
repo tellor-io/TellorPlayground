@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const h = require("./helpers/helpers");
+const web3 = require('web3');
 
 const precision = BigInt(1e18);
 const FAUCET_AMOUNT = BigInt(1000) * precision;
@@ -14,7 +15,7 @@ describe("TellorPlayground", function() {
 	beforeEach(async function () {
 		const TellorPlayground = await ethers.getContractFactory("TellorPlayground");
 		playground = await TellorPlayground.deploy();
-		[owner, addr1, addr2] = await ethers.getSigners();
+		[owner, addr0, addr1, addr2] = await ethers.getSigners();
 		await playground.deployed();
 	});
 
@@ -24,6 +25,22 @@ describe("TellorPlayground", function() {
 		expect(await playground.decimals()).to.equal(18);
 		expect(await playground.addresses(h.hash("_GOVERNANCE_CONTRACT"))).to.equal(playground.address)
 	});
+
+	it("addStakingRewards()", async function() {
+		expect(await playground.balanceOf(playground.address)).to.equal(0)
+		expect(await playground.balanceOf(owner.address)).to.equal(0)
+		await playground.faucet(owner.address)
+		expect(await playground.balanceOf(playground.address)).to.equal(0)
+		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT)
+		await h.expectThrow(playground.addStakingRewards(web3.utils.toWei("300")))
+		await playground.approve(playground.address, FAUCET_AMOUNT)
+		await playground.addStakingRewards(web3.utils.toWei("300"))
+		expect(await playground.balanceOf(playground.address)).to.equal(web3.utils.toWei("300"))
+		expect(await playground.balanceOf(owner.address)).to.equal(web3.utils.toWei("700"))
+		await playground.addStakingRewards(web3.utils.toWei("700"))
+		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
+		expect(await playground.balanceOf(owner.address)).to.equal(0)
+	})
 
 	it("approve()", async function() {
 		let approvalAmount = BigInt(500) * precision;
@@ -62,18 +79,6 @@ describe("TellorPlayground", function() {
 		await playground.connect(addr1).transfer(addr2.address, BigInt(100)*precision)
 		expect(await playground.balanceOf(addr1.address)).to.equal(FAUCET_AMOUNT - BigInt(100)*precision)
 		expect(await playground.balanceOf(addr2.address)).to.equal(BigInt(100)*precision)
-	})
-
-	it("getCurrentReward()", async function() {
-		await playground.faucet(playground.address)
-		await playground.faucet(addr1.address)
-		await playground.connect(addr1).tipQuery(h.uintTob32(1), BigInt(10) * precision, '0x');
-		await playground.connect(addr1).submitValue(h.uintTob32(2),150,0,'0x')
-		blocky = await h.getBlock()
-		await h.advanceTime(60*10)
-		currentReward = await playground.getCurrentReward(h.uintTob32(1))
-		expect(currentReward[0]).to.equal(BigInt(5)*precision) // tip amount should be correct
-		expect(currentReward[1]).to.equal(BigInt(1)*precision) // time based reward amount should be correct
 	})
 
 	it("name()", async function() {

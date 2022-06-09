@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const h = require("./helpers/helpers");
+const web3 = require('web3');
 
 const precision = BigInt(1e18);
 const FAUCET_AMOUNT = BigInt(1000) * precision;
@@ -24,6 +25,22 @@ describe("TellorPlayground", function() {
 		expect(await playground.decimals()).to.equal(18);
 		expect(await playground.addresses(h.hash("_GOVERNANCE_CONTRACT"))).to.equal(playground.address)
 	});
+
+	it("addStakingRewards()", async function() {
+		expect(await playground.balanceOf(playground.address)).to.equal(0)
+		expect(await playground.balanceOf(owner.address)).to.equal(0)
+		await playground.faucet(owner.address)
+		expect(await playground.balanceOf(playground.address)).to.equal(0)
+		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT)
+		await h.expectThrow(playground.addStakingRewards(web3.utils.toWei("300")))
+		await playground.approve(playground.address, FAUCET_AMOUNT)
+		await playground.addStakingRewards(web3.utils.toWei("300"))
+		expect(await playground.balanceOf(playground.address)).to.equal(web3.utils.toWei("300"))
+		expect(await playground.balanceOf(owner.address)).to.equal(web3.utils.toWei("700"))
+		await playground.addStakingRewards(web3.utils.toWei("700"))
+		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
+		expect(await playground.balanceOf(owner.address)).to.equal(0)
+	})
 
 	it("approve()", async function() {
 		let approvalAmount = BigInt(500) * precision;

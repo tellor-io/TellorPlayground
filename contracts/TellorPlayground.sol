@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "hardhat/console.sol";
+
 contract TellorPlayground {
     // Events
     event Approval(
@@ -68,6 +70,14 @@ contract TellorPlayground {
         addresses[
             keccak256(abi.encodePacked("_GOVERNANCE_CONTRACT"))
         ] = address(this);
+    }
+
+    /**
+     * @dev Mock function for adding staking rewards
+     * @param _amount quantity of tokens to transfer to this contract
+     */
+    function addStakingRewards(uint256 _amount) external {
+        require(_transferFrom(msg.sender, address(this), _amount));
     }
 
     /**

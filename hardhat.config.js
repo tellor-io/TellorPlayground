@@ -32,9 +32,9 @@ module.exports = {
           "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish",
         count: 40,
       },
-      forking: {
-        url: "https://eth-mainnet.alchemyapi.io/v2/7dW8KCqWwKa1vdaitq-SxmKfxWZ4yPG6"
-      },
+      // forking: {
+      //   url: "https://eth-mainnet.alchemyapi.io/v2/7dW8KCqWwKa1vdaitq-SxmKfxWZ4yPG6"
+      // },
       allowUnlimitedContractSize: true
     },
     rinkeby: {

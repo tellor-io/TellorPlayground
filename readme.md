@@ -13,20 +13,7 @@
 
 # TL:DR
 Tellor Playground is aims to help anyone building on Tellor to quickly test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at these addresses:
-
-Rinkeby: [`0xF281e2De3bB71dE348040b10B420615104359c10`](https://rinkeby.etherscan.io/address/0xF281e2De3bB71dE348040b10B420615104359c10#code)
-
-Kovan: [`0x320f09D9f92Cfa0e9C272b179e530634D873aeFa`](https://kovan.etherscan.io/address/0x320f09D9f92Cfa0e9C272b179e530634D873aeFa#code)
-
-Ropsten: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://ropsten.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
-
-Goerli: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://goerli.etherscan.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
-
-BSC Testnet: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://testnet.bscscan.com/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7#code)
-
-Polygon Mumbai Testnet: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://explorer-mumbai.maticvigil.com/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7/contracts)
-
-Arbitrum Testnet: [`0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7`](https://rinkeby-explorer.arbitrum.io/address/0x3477EB82263dabb59AC0CAcE47a61292f28A2eA7)
+[https://docs.tellor.io/tellor/integration/reference](https://docs.tellor.io/tellor/integration/reference)
 
 ## Why use Tellor Playground
 The [TellorX](https://github.com/tellor-io/tellorX) repository is a large project that holds all the on-chain logic of the system, but a lot of the code there is aimed at dealing with stakers, reporters, and disputes, among other stuff, which most projects that want to request and read tellor values don't really need to worry about.

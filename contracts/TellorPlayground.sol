@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "hardhat/console.sol";
-
 contract TellorPlayground {
     // Events
     event Approval(
@@ -19,19 +17,12 @@ contract TellorPlayground {
         address _reporter
     );
     event NewStaker(address _staker, uint256 _amount);
-    event TipAdded(
-        address indexed _user,
-        bytes32 indexed _queryId,
-        uint256 _tip,
-        uint256 _totalTip,
-        bytes _queryData
-    );
     event StakeWithdrawRequested(address _staker, uint256 _amount);
     event StakeWithdrawn(address _staker);
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     // Storage
-    mapping(bytes32 => address) public addresses;
+    // mapping(bytes32 => address) public addresses;
     mapping(bytes32 => mapping(uint256 => bool)) public isDisputed; //queryId -> timestamp -> value
     mapping(bytes32 => mapping(uint256 => address)) public reporterByTimestamp;
     mapping(address => StakeInfo) stakerDetails; //mapping from a persons address to their staking info
@@ -42,6 +33,7 @@ contract TellorPlayground {
     mapping(address => mapping(address => uint256)) private _allowances;
     mapping(address => uint256) private _balances;
 
+    uint256 public stakeAmount;
     uint256 public constant timeBasedReward = 5e17; // time based reward for a reporter for successfully submitting a value
     uint256 public tipsInContract; // number of tips within the contract
     uint256 public voteCount;
@@ -67,9 +59,6 @@ contract TellorPlayground {
         _name = "TellorPlayground";
         _symbol = "TRBP";
         _decimals = 18;
-        addresses[
-            keccak256(abi.encodePacked("_GOVERNANCE_CONTRACT"))
-        ] = address(this);
     }
 
     /**
@@ -111,11 +100,54 @@ contract TellorPlayground {
     }
 
     /**
+     * @dev Allows a reporter to submit stake
+     * @param _amount amount of tokens to stake
+     */
+    function depositStake(uint256 _amount) external {
+        StakeInfo storage _staker = stakerDetails[msg.sender];
+        if (_staker.lockedBalance > 0) {
+            if (_staker.lockedBalance >= _amount) {
+                _staker.lockedBalance -= _amount;
+            } else {
+                require(
+                    _transferFrom(
+                        msg.sender,
+                        address(this),
+                        _amount - _staker.lockedBalance
+                    )
+                );
+                _staker.lockedBalance = 0;
+            }
+        } else {
+            require(_transferFrom(msg.sender, address(this), _amount));
+        }
+        _staker.startDate = block.timestamp; // This resets their stake start date to now
+        _staker.stakedBalance += _amount;
+        emit NewStaker(msg.sender, _amount);
+    }
+
+    /**
      * @dev Public function to mint tokens to the given address
      * @param _user The address which will receive the tokens
      */
     function faucet(address _user) external {
         _mint(_user, 1000 ether);
+    }
+
+    /**
+     * @dev Allows a reporter to request to withdraw their stake
+     * @param _amount amount of staked tokens requesting to withdraw
+     */
+    function requestStakingWithdraw(uint256 _amount) external {
+        StakeInfo storage _staker = stakerDetails[msg.sender];
+        require(
+            _staker.stakedBalance >= _amount,
+            "insufficient staked balance"
+        );
+        _staker.startDate = block.timestamp;
+        _staker.lockedBalance += _amount;
+        _staker.stakedBalance -= _amount;
+        emit StakeWithdrawRequested(msg.sender, _amount);
     }
 
     /**
@@ -132,6 +164,7 @@ contract TellorPlayground {
         uint256 _nonce,
         bytes memory _queryData
     ) external {
+        require(keccak256(_value) != keccak256(""), "value must be submitted");
         require(
             _nonce == timestamps[_queryId].length || _nonce == 0,
             "nonce must match timestamp index"
@@ -152,35 +185,6 @@ contract TellorPlayground {
             _nonce,
             _queryData,
             msg.sender
-        );
-    }
-
-    /**
-     * @dev Adds a tip to a given query ID.
-     * @param _queryId is the queryId to look up
-     * @param _amount is the amount of tips
-     * @param _queryData is the extra bytes data needed to fulfill the request
-     */
-    function tipQuery(
-        bytes32 _queryId,
-        uint256 _amount,
-        bytes memory _queryData
-    ) external {
-        require(
-            _queryId == keccak256(_queryData) || uint256(_queryId) <= 100,
-            "id must be hash of bytes data"
-        );
-        _transfer(msg.sender, address(this), _amount);
-        _amount = _amount / 2;
-        _burn(address(this), _amount);
-        tipsInContract += _amount;
-        tips[_queryId] += _amount;
-        emit TipAdded(
-            msg.sender,
-            _queryId,
-            _amount,
-            tips[_queryId],
-            _queryData
         );
     }
 
@@ -220,50 +224,6 @@ contract TellorPlayground {
         return true;
     }
 
-    // Tellor Flex
-    /**
-     * @dev Allows a reporter to submit stake
-     * @param _amount amount of tokens to stake
-     */
-    function depositStake(uint256 _amount) external {
-        StakeInfo storage _staker = stakerDetails[msg.sender];
-        if (_staker.lockedBalance > 0) {
-            if (_staker.lockedBalance >= _amount) {
-                _staker.lockedBalance -= _amount;
-            } else {
-                require(
-                    _transferFrom(
-                        msg.sender,
-                        address(this),
-                        _amount - _staker.lockedBalance
-                    )
-                );
-                _staker.lockedBalance = 0;
-            }
-        } else {
-            require(_transferFrom(msg.sender, address(this), _amount));
-        }
-        _staker.startDate = block.timestamp; // This resets their stake start date to now
-        _staker.stakedBalance += _amount;
-        emit NewStaker(msg.sender, _amount);
-    }
-
-    /**
-     * @dev Allows a reporter to request to withdraw their stake
-     * @param _amount amount of staked tokens requesting to withdraw
-     */
-    function requestStakingWithdraw(uint256 _amount) external {
-        StakeInfo storage _staker = stakerDetails[msg.sender];
-        require(
-            _staker.stakedBalance >= _amount,
-            "insufficient staked balance"
-        );
-        _staker.startDate = block.timestamp;
-        _staker.lockedBalance += _amount;
-        _staker.stakedBalance -= _amount;
-        emit StakeWithdrawRequested(msg.sender, _amount);
-    }
-
     /**
      * @dev Withdraws a reporter's stake
      */
@@ -278,46 +238,11 @@ contract TellorPlayground {
     }
 
     /**
-     * @dev Returns the reporter for a given timestamp and queryId
-     * @param _queryId bytes32 version of the queryId
-     * @param _timestamp uint256 timestamp of report
-     * @return address of data reporter
+     * @dev Returns mock stake amount
+     * @return uint256 stake amount
      */
-    function getReporterByTimestamp(bytes32 _queryId, uint256 _timestamp)
-        external
-        view
-        returns (address)
-    {
-        return reporterByTimestamp[_queryId][_timestamp];
-    }
-
-    /**
-     * @dev Allows users to retrieve all information about a staker
-     * @param _staker address of staker inquiring about
-     * @return uint startDate of staking
-     * @return uint current amount staked
-     * @return uint current amount locked for withdrawal
-     * @return uint reporter's last reported timestamp
-     * @return uint total number of reports submitted by reporter
-     */
-    function getStakerInfo(address _staker)
-        external
-        view
-        returns (
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
-    {
-        return (
-            stakerDetails[_staker].startDate,
-            stakerDetails[_staker].stakedBalance,
-            stakerDetails[_staker].lockedBalance,
-            stakerDetails[_staker].reporterLastTimestamp,
-            stakerDetails[_staker].reportsSubmitted
-        );
+    function getStakeAmount() external view returns (uint256) {
+        return stakeAmount;
     }
 
     // Getters
@@ -367,6 +292,62 @@ contract TellorPlayground {
     }
 
     /**
+     * @dev Returns the reporter for a given timestamp and queryId
+     * @param _queryId bytes32 version of the queryId
+     * @param _timestamp uint256 timestamp of report
+     * @return address of data reporter
+     */
+    function getReporterByTimestamp(bytes32 _queryId, uint256 _timestamp)
+        external
+        view
+        returns (address)
+    {
+        return reporterByTimestamp[_queryId][_timestamp];
+    }
+
+    /**
+     * @dev Allows users to retrieve all information about a staker
+     * @param _stakerAddress address of staker inquiring about
+     * @return uint startDate of staking
+     * @return uint current amount staked
+     * @return uint current amount locked for withdrawal
+     * @return uint reward debt used to calculate staking reward
+     * @return uint reporter's last reported timestamp
+     * @return uint total number of reports submitted by reporter
+     * @return uint governance vote count when first staked
+     * @return uint number of votes case by staker when first staked
+     * @return uint whether staker is counted in totalStakers
+     */
+    function getStakerInfo(address _stakerAddress)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            bool
+        )
+    {
+        StakeInfo storage _staker = stakerDetails[_stakerAddress];
+        return (
+            _staker.startDate,
+            _staker.stakedBalance,
+            _staker.lockedBalance,
+            0, // reward debt
+            _staker.reporterLastTimestamp,
+            _staker.reportsSubmitted,
+            0, // start vote count
+            0, // start vote tally
+            false
+        );
+    }
+
+    /**
      * @dev Gets the timestamp for the value based on their index
      * @param _queryId is the queryId to look up
      * @param _index is the value index to look up
@@ -399,10 +380,24 @@ contract TellorPlayground {
      * @dev Returns the governance address of the contract
      * @return address (this address)
      */
-    function governance() external view returns(address){
+    function governance() external view returns (address) {
         return address(this);
     }
-    
+
+    /**
+     * @dev Returns whether a given value is disputed
+     * @param _queryId unique ID of the data feed
+     * @param _timestamp timestamp of the value
+     * @return bool whether the value is disputed
+     */
+    function isInDispute(bytes32 _queryId, uint256 _timestamp)
+        public
+        view
+        returns (bool)
+    {
+        return isDisputed[_queryId][_timestamp];
+    }
+
     /**
      * @dev Returns the name of the token.
      * @return string name of the token

@@ -429,6 +429,14 @@ contract TellorPlayground {
     }
 
     /**
+     * @dev Returns the token contract address (this address)
+     * @return address token address
+     */
+    function token() public view returns(address) {
+        return address(this);
+    }
+
+    /**
      * @dev Returns the total supply of the token.
      * @return uint256 total supply of token
      */

@@ -264,6 +264,140 @@ contract TellorPlayground {
     }
 
     /**
+     * @dev Retrieves the latest value for the queryId before the specified timestamp
+     * @param _queryId is the queryId to look up the value for
+     * @param _timestamp before which to search for latest value
+     * @return _ifRetrieve bool true if able to retrieve a non-zero value
+     * @return _value the value retrieved
+     * @return _timestampRetrieved the value's timestamp
+     */
+    function getDataBefore(bytes32 _queryId, uint256 _timestamp)
+        public
+        view
+        returns (
+            bool _ifRetrieve,
+            bytes memory _value,
+            uint256 _timestampRetrieved
+        )
+    {
+        (bool _found, uint256 _index) = getIndexForDataBefore(
+            _queryId,
+            _timestamp
+        );
+        if (!_found) return (false, bytes(""), 0);
+        _timestampRetrieved = getTimestampbyQueryIdandIndex(_queryId, _index);
+        _value = retrieveData(_queryId, _timestampRetrieved);
+        return (true, _value, _timestampRetrieved);
+    }
+
+    /**
+     * @dev Retrieves latest array index of data before the specified timestamp for the queryId
+     * @param _queryId is the queryId to look up the index for
+     * @param _timestamp is the timestamp before which to search for the latest index
+     * @return _found whether the index was found
+     * @return _index the latest index found before the specified timestamp
+     */
+    // slither-disable-next-line calls-loop
+    function getIndexForDataBefore(bytes32 _queryId, uint256 _timestamp)
+        public
+        view
+        returns (bool _found, uint256 _index)
+    {
+        uint256 _count = getNewValueCountbyQueryId(_queryId);
+        if (_count > 0) {
+            uint256 _middle;
+            uint256 _start = 0;
+            uint256 _end = _count - 1;
+            uint256 _time;
+            //Checking Boundaries to short-circuit the algorithm
+            _time = getTimestampbyQueryIdandIndex(_queryId, _start);
+            if (_time >= _timestamp) return (false, 0);
+            _time = getTimestampbyQueryIdandIndex(_queryId, _end);
+            if (_time < _timestamp) {
+                while (isInDispute(_queryId, _time) && _end > 0) {
+                    _end--;
+                    _time = getTimestampbyQueryIdandIndex(_queryId, _end);
+                }
+                if (_end == 0 && isInDispute(_queryId, _time)) {
+                    return (false, 0);
+                }
+                return (true, _end);
+            }
+            //Since the value is within our boundaries, do a binary search
+            while (true) {
+                _middle = (_end - _start) / 2 + 1 + _start;
+                _time = getTimestampbyQueryIdandIndex(_queryId, _middle);
+                if (_time < _timestamp) {
+                    //get immediate next value
+                    uint256 _nextTime = getTimestampbyQueryIdandIndex(
+                        _queryId,
+                        _middle + 1
+                    );
+                    if (_nextTime >= _timestamp) {
+                        if (!isInDispute(_queryId, _time)) {
+                            // _time is correct
+                            return (true, _middle);
+                        } else {
+                            // iterate backwards until we find a non-disputed value
+                            while (
+                                isInDispute(_queryId, _time) && _middle > 0
+                            ) {
+                                _middle--;
+                                _time = getTimestampbyQueryIdandIndex(
+                                    _queryId,
+                                    _middle
+                                );
+                            }
+                            if (_middle == 0 && isInDispute(_queryId, _time)) {
+                                return (false, 0);
+                            }
+                            // _time is correct
+                            return (true, _middle);
+                        }
+                    } else {
+                        //look from middle + 1(next value) to end
+                        _start = _middle + 1;
+                    }
+                } else {
+                    uint256 _prevTime = getTimestampbyQueryIdandIndex(
+                        _queryId,
+                        _middle - 1
+                    );
+                    if (_prevTime < _timestamp) {
+                        if (!isInDispute(_queryId, _prevTime)) {
+                            // _prevTime is correct
+                            return (true, _middle - 1);
+                        } else {
+                            // iterate backwards until we find a non-disputed value
+                            _middle--;
+                            while (
+                                isInDispute(_queryId, _prevTime) && _middle > 0
+                            ) {
+                                _middle--;
+                                _prevTime = getTimestampbyQueryIdandIndex(
+                                    _queryId,
+                                    _middle
+                                );
+                            }
+                            if (
+                                _middle == 0 && isInDispute(_queryId, _prevTime)
+                            ) {
+                                return (false, 0);
+                            }
+                            // _prevtime is correct
+                            return (true, _middle);
+                        }
+                    } else {
+                        //look from start to middle -1(prev value)
+                        _end = _middle - 1;
+                    }
+                }
+            }
+        }
+        return (false, 0);
+    }
+
+    /**
      * @dev Counts the number of values that have been submitted for a given ID
      * @param _queryId the ID to look up
      * @return uint256 count of the number of values received for the queryId

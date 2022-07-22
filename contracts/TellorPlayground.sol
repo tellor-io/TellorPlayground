@@ -22,7 +22,6 @@ contract TellorPlayground {
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     // Storage
-    // mapping(bytes32 => address) public addresses;
     mapping(bytes32 => mapping(uint256 => bool)) public isDisputed; //queryId -> timestamp -> value
     mapping(bytes32 => mapping(uint256 => address)) public reporterByTimestamp;
     mapping(address => StakeInfo) stakerDetails; //mapping from a persons address to their staking info
@@ -37,6 +36,7 @@ contract TellorPlayground {
     uint256 public constant timeBasedReward = 5e17; // time based reward for a reporter for successfully submitting a value
     uint256 public tipsInContract; // number of tips within the contract
     uint256 public voteCount;
+    address public token;
     uint256 private _totalSupply;
     string private _name;
     string private _symbol;
@@ -59,14 +59,7 @@ contract TellorPlayground {
         _name = "TellorPlayground";
         _symbol = "TRBP";
         _decimals = 18;
-    }
-
-    /**
-     * @dev Mock function for adding staking rewards
-     * @param _amount quantity of tokens to transfer to this contract
-     */
-    function addStakingRewards(uint256 _amount) external {
-        require(_transferFrom(msg.sender, address(this), _amount));
+        token = address(this);
     }
 
     /**
@@ -237,14 +230,6 @@ contract TellorPlayground {
         emit StakeWithdrawn(msg.sender);
     }
 
-    /**
-     * @dev Returns mock stake amount
-     * @return uint256 stake amount
-     */
-    function getStakeAmount() external view returns (uint256) {
-        return stakeAmount;
-    }
-
     // Getters
     /**
      * @dev Returns the amount that an address is alowed to spend of behalf of another
@@ -303,6 +288,14 @@ contract TellorPlayground {
         returns (address)
     {
         return reporterByTimestamp[_queryId][_timestamp];
+    }
+
+    /**
+     * @dev Returns mock stake amount
+     * @return uint256 stake amount
+     */
+    function getStakeAmount() external view returns (uint256) {
+        return stakeAmount;
     }
 
     /**
@@ -426,14 +419,6 @@ contract TellorPlayground {
      */
     function symbol() public view returns (string memory) {
         return _symbol;
-    }
-
-    /**
-     * @dev Returns the token contract address (this address)
-     * @return address token address
-     */
-    function token() public view returns(address) {
-        return address(this);
     }
 
     /**

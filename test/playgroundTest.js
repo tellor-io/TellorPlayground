@@ -23,23 +23,8 @@ describe("TellorPlayground", function() {
 		expect(await playground.name()).to.equal("TellorPlayground");
 		expect(await playground.symbol()).to.equal("TRBP");
 		expect(await playground.decimals()).to.equal(18);
+		expect(await playground.token()).to.equal(playground.address);
 	});
-
-	it("addStakingRewards()", async function() {
-		expect(await playground.balanceOf(playground.address)).to.equal(0)
-		expect(await playground.balanceOf(owner.address)).to.equal(0)
-		await playground.faucet(owner.address)
-		expect(await playground.balanceOf(playground.address)).to.equal(0)
-		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT)
-		await h.expectThrow(playground.addStakingRewards(web3.utils.toWei("300")))
-		await playground.approve(playground.address, FAUCET_AMOUNT)
-		await playground.addStakingRewards(web3.utils.toWei("300"))
-		expect(await playground.balanceOf(playground.address)).to.equal(web3.utils.toWei("300"))
-		expect(await playground.balanceOf(owner.address)).to.equal(web3.utils.toWei("700"))
-		await playground.addStakingRewards(web3.utils.toWei("700"))
-		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
-		expect(await playground.balanceOf(owner.address)).to.equal(0)
-	})
 
 	it("approve()", async function() {
 		let approvalAmount = BigInt(500) * precision;

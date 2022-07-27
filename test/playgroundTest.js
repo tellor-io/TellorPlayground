@@ -162,4 +162,14 @@ describe("TellorPlayground", function() {
 		expect(await playground.isInDispute(h.uintTob32(1), blocky.timestamp)).to.equal(true)
 	})
 
+	it.only("addStakingRewards()", async function() {
+		await playground.faucet(addr1.address)
+		await playground.connect(addr1).approve(playground.address, FAUCET_AMOUNT)
+		expect(await playground.balanceOf(addr1.address)).to.equal(FAUCET_AMOUNT)
+		expect(await playground.balanceOf(playground.address)).to.equal(0)
+		await playground.connect(addr1).addStakingRewards(FAUCET_AMOUNT)
+		expect(await playground.balanceOf(addr1.address)).to.equal(0)
+		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
+	})
+
 });

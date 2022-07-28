@@ -6,9 +6,6 @@
   "directories": {
     "test": "test"
   },
-  "scripts": {
-    "test": "truffle test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tellor-io/TellorPlayground.git"

@@ -171,9 +171,4 @@ describe("TellorPlayground", function() {
 		expect(await playground.balanceOf(addr1.address)).to.equal(0)
 		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
 	})
-
-	it("getGasUsedByReport()", async function() {
-		gasUsed = await playground.getGasUsedByReport(h.uintTob32(1), 150)
-		expect(gasUsed.toString()).to.equal(5e17.toString()) 
-	})
 });

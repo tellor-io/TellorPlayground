@@ -12,7 +12,7 @@
 
 
 # TL:DR
-Tellor Playground is aims to help anyone building on Tellor to quickly test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at [these addresses.](https://docs.tellor.io/tellor/getting-data/introduction)
+Tellor Playground is aims to help anyone building on Tellor to quickly test and implement ideas. It's available on all Ethereum testnets, BSC testnet, Polygon(Matic Mumbai) testnet, and Arbitrum testnet at [these addresses.](https://docs.tellor.io/tellor/the-basics/contracts-reference)
 
 ## Why use Tellor Playground
 The [TellorX](https://github.com/tellor-io/tellorX) repository is a large project that holds all the on-chain logic of the system, but a lot of the code there is aimed at dealing with stakers, reporters, and disputes, among other stuff, which most projects that want to request and read tellor values don't really need to worry about.

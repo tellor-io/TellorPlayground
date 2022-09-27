@@ -1,5 +1,6 @@
 build/
 node_modules/
-.env
 artifacts/
 cache/
+.env
+package-lock.json

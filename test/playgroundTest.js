@@ -23,24 +23,8 @@ describe("TellorPlayground", function() {
 		expect(await playground.name()).to.equal("TellorPlayground");
 		expect(await playground.symbol()).to.equal("TRBP");
 		expect(await playground.decimals()).to.equal(18);
-		expect(await playground.addresses(h.hash("_GOVERNANCE_CONTRACT"))).to.equal(playground.address)
+		expect(await playground.token()).to.equal(playground.address);
 	});
-
-	it("addStakingRewards()", async function() {
-		expect(await playground.balanceOf(playground.address)).to.equal(0)
-		expect(await playground.balanceOf(owner.address)).to.equal(0)
-		await playground.faucet(owner.address)
-		expect(await playground.balanceOf(playground.address)).to.equal(0)
-		expect(await playground.balanceOf(owner.address)).to.equal(FAUCET_AMOUNT)
-		await h.expectThrow(playground.addStakingRewards(web3.utils.toWei("300")))
-		await playground.approve(playground.address, FAUCET_AMOUNT)
-		await playground.addStakingRewards(web3.utils.toWei("300"))
-		expect(await playground.balanceOf(playground.address)).to.equal(web3.utils.toWei("300"))
-		expect(await playground.balanceOf(owner.address)).to.equal(web3.utils.toWei("700"))
-		await playground.addStakingRewards(web3.utils.toWei("700"))
-		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
-		expect(await playground.balanceOf(owner.address)).to.equal(0)
-	})
 
 	it("approve()", async function() {
 		let approvalAmount = BigInt(500) * precision;
@@ -154,9 +138,9 @@ describe("TellorPlayground", function() {
 
 	it("getVoteRounds()", async function() {
 		await playground.connect(addr1).submitValue(h.uintTob32(1),150,0,'0x')
-    blocky1 = await h.getBlock()
-    await playground.connect(addr1).submitValue(h.uintTob32(1),160,1,'0x')
-    blocky2 = await h.getBlock()
+    	blocky1 = await h.getBlock()
+    	await playground.connect(addr1).submitValue(h.uintTob32(1),160,1,'0x')
+    	blocky2 = await h.getBlock()
 		let hash = ethers.utils.solidityKeccak256(['bytes32','uint256'], [h.uintTob32(1),blocky1.timestamp])
 		voteRounds = await playground.getVoteRounds(hash)
 		expect(voteRounds.length).to.equal(0)
@@ -171,13 +155,20 @@ describe("TellorPlayground", function() {
 		expect(voteRounds[1]).to.equal(2)
 	})
 
-	it("tipQuery()", async function() {
-		expect(await playground.balanceOf(playground.address)).to.equal(0);
-		expect(await playground.balanceOf(owner.address)).to.equal(0);
-		await playground.faucet(owner.address);
-		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(1000) * precision);
-		await (playground.tipQuery(h.uintTob32(1), BigInt(10) * precision, '0x'));
-		expect(await playground.balanceOf(playground.address)).to.equal(BigInt(5) * precision);
-		expect(await playground.balanceOf(owner.address)).to.equal(BigInt(990) * precision);
-	});
+	it("isInDispute()", async function() {
+		blocky = await h.getBlock();
+		expect(await playground.isInDispute(h.uintTob32(1), blocky.timestamp)).to.equal(false)
+		await playground.beginDispute(h.uintTob32(1), blocky.timestamp)
+		expect(await playground.isInDispute(h.uintTob32(1), blocky.timestamp)).to.equal(true)
+	})
+
+	it("addStakingRewards()", async function() {
+		await playground.faucet(addr1.address)
+		await playground.connect(addr1).approve(playground.address, FAUCET_AMOUNT)
+		expect(await playground.balanceOf(addr1.address)).to.equal(FAUCET_AMOUNT)
+		expect(await playground.balanceOf(playground.address)).to.equal(0)
+		await playground.connect(addr1).addStakingRewards(FAUCET_AMOUNT)
+		expect(await playground.balanceOf(addr1.address)).to.equal(0)
+		expect(await playground.balanceOf(playground.address)).to.equal(FAUCET_AMOUNT)
+	})
 });

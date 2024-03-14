@@ -10,7 +10,7 @@ require("dotenv").config();
 //const dotenv = require('dotenv').config()
 
 
-//npx hardhat run scripts/deploy.js --network rinkeby
+//npx hardhat run scripts/deploy.js --network holesky
 
 async function deployPlayground(_network, _pk, _nodeURL) {
 
@@ -56,7 +56,22 @@ async function deployPlayground(_network, _pk, _nodeURL) {
     } else if (net == "xdai"){ //https://blockscout.com/poa/xdai/address/
       console.log("tellor contract deployed to:","https://blockscout.com/xdai/mainnet/address/"+ tellor.address)
       console.log("    transaction hash:", "https://blockscout.com/xdai/mainnet/tx/" + tellor.deployTransaction.hash);
-    } else {
+    }  else if (net == "mantle_testnet"){ 
+    console.log("tellor contract deployed to:","https://testnet.mantlescan.org/address/"+ tellor.address)
+     }  else if (net == "zkevm_testnet"){ 
+    console.log("tellor contract deployed to:","https://cardona-zkevm.polygonscan.com/address/"+ tellor.address)
+}  else if (net == "linea"){ 
+    console.log("tellor contract deployed to:","https://lineascan.build/address/"+ tellor.address)
+     }  else if (net == "linea_testnet"){ 
+    console.log("tellor contract deployed to:","https://goerli.lineascan.build/address/"+ tellor.address)
+}  else if (net == "europa"){ 
+    console.log("tellor contract deployed to:","https://elated-tan-skat.explorer.mainnet.skalenodes.com/address/"+ tellor.address)
+     }  else if (net == "europa_testnet"){ 
+    console.log("tellor contract deployed to:","https://juicy-low-small-testnet.explorer.testnet.skalenodes.com/address/"+ tellor.address)
+}  else if (net == "holesky"){ 
+    console.log("tellor contract deployed to:","https://holesky.etherscan.io/address/"+ tellor.address)
+   
+    }else {
         console.log("Please add network explorer details")
     }
 
@@ -67,17 +82,19 @@ async function deployPlayground(_network, _pk, _nodeURL) {
     await tellor.deployTransaction.wait(3)
 
     console.log('submitting contract for verification...');
-
+    try {
     await run("verify:verify", {
       address: tellor.address
     },
     )
 
     console.log("Contract verified")
-
+     } catch (e) {
+    console.log(e)
+    }
   };
 
-  deployPlayground("rinkeby", process.env.TESTNET_PK, process.env.NODE_URL_RINKEBY)
+  deployPlayground("europa_testnet", process.env.TESTNET_PK, process.env.NODE_URL_SKALE_EUROPA_TESTNET)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

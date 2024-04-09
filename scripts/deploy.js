@@ -10,7 +10,7 @@ require("dotenv").config();
 //const dotenv = require('dotenv').config()
 
 
-//npx hardhat run scripts/deploy.js --network holesky
+//npx hardhat run scripts/deploy.js --network kyoto_testnet
 
 async function deployPlayground(_network, _pk, _nodeURL) {
 
@@ -70,7 +70,8 @@ async function deployPlayground(_network, _pk, _nodeURL) {
     console.log("tellor contract deployed to:","https://juicy-low-small-testnet.explorer.testnet.skalenodes.com/address/"+ tellor.address)
 }  else if (net == "holesky"){ 
     console.log("tellor contract deployed to:","https://holesky.etherscan.io/address/"+ tellor.address)
-   
+}  else if (net == "kyoto_testnet"){ 
+    console.log("tellor contract deployed to:","https://testnet.kyotoscan.io/address/"+ tellor.address)
     }else {
         console.log("Please add network explorer details")
     }
@@ -94,7 +95,7 @@ async function deployPlayground(_network, _pk, _nodeURL) {
     }
   };
 
-  deployPlayground("europa_testnet", process.env.TESTNET_PK, process.env.NODE_URL_SKALE_EUROPA_TESTNET)
+  deployPlayground("kyoto_testnet", process.env.TESTNET_PK, process.env.NODE_URL_KYOTO_TESTNET)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

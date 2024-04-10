@@ -2,5 +2,7 @@ build/
 node_modules/
 artifacts/
 cache/
+cache-zk/
+artifacts-zk
 .env
 package-lock.json

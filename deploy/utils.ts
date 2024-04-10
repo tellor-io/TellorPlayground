@@ -26,13 +26,13 @@ export const getProvider = () => {
 export const getWallet = (privateKey?: string) => {
   if (!privateKey) {
     // Get wallet private key from .env file
-    if (!process.env.WALLET_PRIVATE_KEY) throw "⛔️ Wallet private key wasn't found in .env file!";
+    if (!process.env.TESTNET_PK) throw "⛔️ Wallet private key wasn't found in .env file!";
   }
 
   const provider = getProvider();
   
   // Initialize zkSync Wallet
-  const wallet = new Wallet(privateKey ?? process.env.WALLET_PRIVATE_KEY!, provider);
+  const wallet = new Wallet(privateKey ?? process.env.TESTNET_PK!, provider);
 
   return wallet;
 }
@@ -168,4 +168,4 @@ export const deployContract = async (contractArtifactName: string, constructorAr
 //     address: "0xE90E12261CCb0F3F7976Ae611A29e84a6A85f424",
 //     privateKey: "0x3eb15da85647edd9a1159a4a13b9e7c56877c4eb33f614546d4db06a51868b1c"
 //   }
-]
+//]

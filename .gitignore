@@ -3,6 +3,6 @@ node_modules/
 artifacts/
 cache/
 cache-zk/
-artifacts-zk
+artifacts-zk/
 .env
 package-lock.json

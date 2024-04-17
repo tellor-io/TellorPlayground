@@ -7,6 +7,15 @@ require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
 
+
+require("hardhat-gas-reporter");
+require("solidity-coverage");
+require('hardhat-contract-sizer');
+require("@nomiclabs/hardhat-ethers");
+require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-waffle");
+require("dotenv").config();
+
 module.exports = {
   solidity: {
     compilers: [
@@ -178,6 +187,12 @@ module.exports = {
       gas: 8000000 ,
       gasPrice: 10000000000
     },
+    polygon_amoy: {
+      url: `${process.env.NODE_URL_POLYGON_AMOY}`,
+      seeds: [process.env.TESTNET_PK],
+      gas: 8000000 ,
+      gasPrice: 10000000000
+    }       
 
     
 

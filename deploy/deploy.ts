@@ -1,6 +1,6 @@
 import { deployContract } from "./utils";
 
-//npx hardhat run deploy/deploy.ts --network zkSyncSepoliaTestnet
+//npx hardhat run deploy/deploy.ts --network zkSyncMainnet
 
 // An example of a basic deploy script
 // It will deploy a contract to selected network

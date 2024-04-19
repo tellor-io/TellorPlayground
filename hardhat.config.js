@@ -8,14 +8,6 @@ require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
 
 
-require("hardhat-gas-reporter");
-require("solidity-coverage");
-require('hardhat-contract-sizer');
-require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-etherscan");
-require("@nomiclabs/hardhat-waffle");
-require("dotenv").config();
-
 module.exports = {
   solidity: {
     compilers: [

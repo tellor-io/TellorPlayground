@@ -192,7 +192,13 @@ module.exports = {
       seeds: [process.env.TESTNET_PK],
       gas: 8000000 ,
       gasPrice: 10000000000
-    }       
+    },
+    optimism_sepolia: {
+      url: `${process.env.NODE_URL_OPTIMISM_SEPOLIA}`,
+      seeds: [process.env.TESTNET_PK],
+      gas: 8000000 ,
+      gasPrice: 10000000000
+    }            
 
     
 

@@ -1,21 +1,21 @@
-require("@nomiclabs/hardhat-truffle5");
+//require("@nomiclabs/hardhat-truffle5");
 require("hardhat-gas-reporter");
 require('hardhat-contract-sizer');
-require("solidity-coverage");
 require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-etherscan");
+//require("@nomiclabs/hardhat-etherscan");
+//require("@nomicfoundation/hardhat-verify");
 require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
+const hre = require("hardhat"); 
+const web3 = require('web3');
 
-//const dotenv = require('dotenv').config()
+//npx hardhat run scripts/deploy.js --network optimsm_sepolia
 
-
-//npx hardhat run scripts/deploy.js --network kyoto_testnet
-
-async function deployPlayground(_network, _pk, _nodeURL) {
+async function deployPlayground(_pk, _nodeURL) {
 
     console.log("deploy tellor playground")
-    var net = _network
+    
+    var net = hre.network.name
 
     await run("compile")
 
@@ -72,6 +72,11 @@ async function deployPlayground(_network, _pk, _nodeURL) {
     console.log("tellor contract deployed to:","https://holesky.etherscan.io/address/"+ tellor.address)
 }  else if (net == "kyoto_testnet"){ 
     console.log("tellor contract deployed to:","https://testnet.kyotoscan.io/address/"+ tellor.address)
+}  else if (net == "polygon_amoy"){ 
+    console.log("tellor contract deployed to:","https://amoy.polygonscan.com/address/"+ tellor.address)
+}  else if (net == "optimism_sepolia"){ 
+    console.log("tellor contract deployed to:","https://sepolia-optimism.etherscan.io/address/"+ tellor.address)
+   
     }else {
         console.log("Please add network explorer details")
     }
@@ -95,7 +100,7 @@ async function deployPlayground(_network, _pk, _nodeURL) {
     }
   };
 
-  deployPlayground("kyoto_testnet", process.env.TESTNET_PK, process.env.NODE_URL_KYOTO_TESTNET)
+  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_OPTIMISM_SEPOLIA)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

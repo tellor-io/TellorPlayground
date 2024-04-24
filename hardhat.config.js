@@ -190,7 +190,25 @@ module.exports = {
       seeds: [process.env.TESTNET_PK],
       gas: 8000000 ,
       gasPrice: 10000000000
-    }            
+    },
+    arbitrum_sepolia: {
+      url: `${process.env.NODE_URL_ARBITRUM_SEPOLIA}`,
+      seeds: [process.env.TESTNET_PK],
+      gas: 8000000 ,
+      gasPrice: 10000000000
+    },
+    mantle_sepolia: {
+      url: `${process.env.NODE_URL_MANTLE_SEPOLIA}`,
+      seeds: [process.env.TESTNET_PK],
+      gas: 8000000 ,
+      gasPrice: 1000000000
+    } ,
+    base_sepolia: {
+      url: `${process.env.NODE_URL_BASE_SEPOLIA}`,
+      seeds: [process.env.TESTNET_PK],
+      gas: 8000000 ,
+      gasPrice: 1000000
+    }               
 
     
 

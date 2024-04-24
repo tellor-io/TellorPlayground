@@ -9,7 +9,7 @@ require("dotenv").config();
 const hre = require("hardhat"); 
 const web3 = require('web3');
 
-//npx hardhat run scripts/deploy.js --network optimsm_sepolia
+//npx hardhat run scripts/deploy.js --network base_sepolia
 
 async function deployPlayground(_pk, _nodeURL) {
 
@@ -76,7 +76,13 @@ async function deployPlayground(_pk, _nodeURL) {
     console.log("tellor contract deployed to:","https://amoy.polygonscan.com/address/"+ tellor.address)
 }  else if (net == "optimism_sepolia"){ 
     console.log("tellor contract deployed to:","https://sepolia-optimism.etherscan.io/address/"+ tellor.address)
-   
+}  else if (net == "arbitrum_sepolia"){ 
+    console.log("tellor contract deployed to:","https://sepolia.arbiscan.io/address/"+ tellor.address)
+}  else if (net == "mantle_sepolia"){ 
+    console.log("tellor contract deployed to:","https://explorer.mantle.xyz/address/"+ tellor.address)
+}  else if (net == "base_sepolia"){ 
+    console.log("tellor contract deployed to:","https://sepolia.basescan.org/address/"+ tellor.address)
+               
     }else {
         console.log("Please add network explorer details")
     }
@@ -100,7 +106,7 @@ async function deployPlayground(_pk, _nodeURL) {
     }
   };
 
-  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_OPTIMISM_SEPOLIA)
+  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_BASE_SEPOLIA)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

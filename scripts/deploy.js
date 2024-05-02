@@ -9,7 +9,7 @@ require("dotenv").config();
 const hre = require("hardhat"); 
 const web3 = require('web3');
 
-//npx hardhat run scripts/deploy.js --network base_sepolia
+//npx hardhat run scripts/deploy.js --network bob_sepolia
 
 async function deployPlayground(_pk, _nodeURL) {
 
@@ -82,7 +82,12 @@ async function deployPlayground(_pk, _nodeURL) {
     console.log("tellor contract deployed to:","https://explorer.mantle.xyz/address/"+ tellor.address)
 }  else if (net == "base_sepolia"){ 
     console.log("tellor contract deployed to:","https://sepolia.basescan.org/address/"+ tellor.address)
-               
+}  else if (net == "bob_sepolia"){ 
+    console.log("playground deployed to:","https://testnet-explorer.gobob.xyz/address/"+ tellor.address)
+
+}  else if (net == "bob"){ 
+    console.log("playground deployed to:","https://explorer.gobob.xyz/address/"+ tellor.address)
+      
     }else {
         console.log("Please add network explorer details")
     }
@@ -106,7 +111,7 @@ async function deployPlayground(_pk, _nodeURL) {
     }
   };
 
-  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_BASE_SEPOLIA)
+  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_BOB_SEPOLIA)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);

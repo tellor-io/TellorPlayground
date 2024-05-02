@@ -1,11 +1,13 @@
 /** @type import('hardhat/config').HardhatUserConfig */
+
+const { vars } = require("hardhat/config");
 require("hardhat-gas-reporter");
-require('hardhat-contract-sizer');
-require("solidity-coverage");
-require("@nomiclabs/hardhat-ethers");
-require("@nomiclabs/hardhat-etherscan");
-require("@nomiclabs/hardhat-waffle");
 require("dotenv").config();
+require("@nomicfoundation/hardhat-ignition-ethers");
+
+//const NODE_URL_BOB_SEPOLIA = vars.get("NODE_URL_BOB_SEPOLIA");
+const TESTNET_PK = vars.get("TESTNET_PK");
+
 
 
 module.exports = {
@@ -208,7 +210,21 @@ module.exports = {
       seeds: [process.env.TESTNET_PK],
       gas: 8000000 ,
       gasPrice: 1000000
+    }   , 
+    bob_sepolia: {
+      url: vars.get("NODE_URL_BOB_SEPOLIA"),
+      seeds: TESTNET_PK,
+      gas: 8000000 ,
+      gasPrice: 30
+    } ,              
+
+    bob: {
+      url: `${process.env.NODE_URL_BOB}`,
+      seeds: [process.env.TESTNET_PK],
+      gas: 8000000 ,
+      gasPrice: 1000000
     }               
+
 
     
 
@@ -229,7 +245,7 @@ module.exports = {
    //apiKey: process.env.POLYSCAN
    //apiKey: process.env.BSC_TOKEN
    //apiKey: process.env.OPTIMISMSCAN
-   mantelTest: process.env.ETHERSCAN
+   mantelTest: vars.get("ETHERSCAN")
     },
     customChains: [
       {

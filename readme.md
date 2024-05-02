@@ -114,3 +114,11 @@ Tellor Playground is also an ERC20 token, and if you want to add tips to your re
      */
     function faucet(address user) external;
 ```
+
+
+
+## deploy your own playground
+set your vars
+
+npx hardhat vars set INFURA_API_KEY
+npx hardhat ignition deploy ./ignition/modules/PlaygroundModule.js --network sepolia

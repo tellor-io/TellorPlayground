@@ -9,7 +9,7 @@ require("dotenv").config();
 const hre = require("hardhat"); 
 const web3 = require('web3');
 
-//npx hardhat run scripts/deploy.js --network base_sepolia
+//npx hardhat run scripts/deploy.js --network bob_sepolia
 
 async function deployPlayground(_pk, _nodeURL) {
 
@@ -82,7 +82,20 @@ async function deployPlayground(_pk, _nodeURL) {
     console.log("tellor contract deployed to:","https://explorer.mantle.xyz/address/"+ tellor.address)
 }  else if (net == "base_sepolia"){ 
     console.log("tellor contract deployed to:","https://sepolia.basescan.org/address/"+ tellor.address)
-               
+}  else if (net == "mode_testnet"){ 
+    console.log("playground deployed to:","https://sepolia.explorer.mode.network/address/"+ tellor.address)
+}  else if (net == "rari_testnet"){ 
+    console.log("playground deployed to:","https://explorer.rarichain.org/address/"+ tellor.address)                    
+}  else if (net == "telos_testnet"){ 
+    console.log("playground deployed to:","https://testnet.teloscan.io/address/"+ tellor.address)                    
+}  else if (net == "atleta_testnet"){ 
+    console.log("playground deployed to:","https://blockscout.atleta.network/address/"+ tellor.address)                    
+}  else if (net == "taraxa_testnet"){ 
+    console.log("playground deployed to:","https://explorer.testnet.taraxa.io/address/"+ tellor.address)   
+}  else if (net == "bob_sepolia"){ 
+    console.log("playground deployed to:","https://bob-sepolia.explorer.gobob.xyz/address/"+ tellor.address)  
+
+
     }else {
         console.log("Please add network explorer details")
     }
@@ -106,7 +119,7 @@ async function deployPlayground(_pk, _nodeURL) {
     }
   };
 
-  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_BASE_SEPOLIA)
+  deployPlayground(process.env.TESTNET_PK, process.env.NODE_URL_BOB_SEPOLIA)
     .then(() => process.exit(0))
     .catch(error => {
 	  console.error(error);
